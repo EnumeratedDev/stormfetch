@@ -88,10 +88,23 @@ func readConfig() {
 	if err != nil {
 		return
 	}
-	// Print Distro Ascii
-	fmt.Println(getDistroAscii())
-	// Print Fetch Script Output
-	fmt.Println(string(out))
+	// Print Distro Information
+	ascii := getDistroAscii()
+	maxWidth := 0
+	for _, line := range strings.Split(ascii, "\n") {
+		if len(line) > maxWidth {
+			maxWidth = len(line)
+		}
+	}
+	for lineIndex, line := range strings.Split(ascii, "\n") {
+		for i := len(line); i < maxWidth+5; i++ {
+			line = line + " "
+		}
+		if lineIndex < len(strings.Split(string(out), "\n")) {
+			line = line + strings.Split(string(out), "\n")[lineIndex]
+		}
+		fmt.Println(line)
+	}
 }
 
 func readKeyValueFile(filepath string) (map[string]string, error) {
@@ -174,7 +187,6 @@ func getDistroAscii() string {
  (|     | )
 /'\_   _/'\
 \___)=(___/ `
-	fmt.Println(path.Join(asciiPath, getDistroInfo().ID))
 	if _, err := os.Stat(path.Join(asciiPath, getDistroInfo().ID)); err == nil {
 		bytes, err := os.ReadFile(path.Join(asciiPath, getDistroInfo().ID))
 		if err != nil {
