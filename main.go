@@ -16,9 +16,8 @@ var configPath string = ""
 var config StormfetchConfig = StormfetchConfig{}
 
 type StormfetchConfig struct {
-	Distro string `yaml:"distro_id"`
-	Ascii  string `yaml:"distro_ascii"`
-	Fetch  string `yaml:"fetch_script"`
+	Ascii string `yaml:"distro_ascii"`
+	Fetch string `yaml:"fetch_script"`
 }
 
 type DistroInfo struct {
@@ -76,8 +75,7 @@ func readConfig() {
 		log.Fatal(err)
 	}
 	cmd.Dir = workdir
-	cmd.Environ()
-	getDistroInfo()
+	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env, "DISTRO_LONG_NAME="+getDistroInfo().LongName)
 	cmd.Env = append(cmd.Env, "DISTRO_SHORT_NAME="+getDistroInfo().ShortName)
 	out, err := cmd.Output()
@@ -134,19 +132,17 @@ func readKeyValueFile(filepath string) (map[string]string, error) {
 func getDistroInfo() DistroInfo {
 	distroID := ""
 	var releaseMap = make(map[string]string)
-	if config.Distro == "auto" {
-		if _, err := os.Stat("/etc/os-release"); err == nil {
-			releaseMap, err = readKeyValueFile("/etc/os-release")
-			if err != nil {
-				return DistroInfo{
-					ID:        "unknown",
-					LongName:  "Unknown",
-					ShortName: "Unknown",
-				}
+	if _, err := os.Stat("/etc/os-release"); err == nil {
+		releaseMap, err = readKeyValueFile("/etc/os-release")
+		if err != nil {
+			return DistroInfo{
+				ID:        "unknown",
+				LongName:  "Unknown",
+				ShortName: "Unknown",
 			}
-			if value, ok := releaseMap["ID"]; ok {
-				distroID = value
-			}
+		}
+		if value, ok := releaseMap["ID"]; ok {
+			distroID = value
 		}
 	}
 
@@ -187,10 +183,16 @@ func getDistroAscii() string {
  (|     | )
 /'\_   _/'\
 \___)=(___/ `
-	if _, err := os.Stat(path.Join(asciiPath, getDistroInfo().ID)); err == nil {
-		bytes, err := os.ReadFile(path.Join(asciiPath, getDistroInfo().ID))
+	var id string
+	if config.Ascii == "auto" {
+		id = getDistroInfo().ID
+	} else {
+		id = config.Ascii
+	}
+	if _, err := os.Stat(path.Join(asciiPath, id)); err == nil {
+		bytes, err := os.ReadFile(path.Join(asciiPath, id))
 		if err != nil {
-			return ""
+			return defaultAscii
 		}
 		return string(bytes)
 	} else {
