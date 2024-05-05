@@ -10,13 +10,14 @@ import (
 	"strings"
 )
 
-var configPath string = ""
+var configPath = ""
+var fetchScriptPath = ""
 
-var config StormfetchConfig = StormfetchConfig{}
+var config = StormfetchConfig{}
 
 type StormfetchConfig struct {
-	Ascii string `yaml:"distro_ascii"`
-	Fetch string `yaml:"fetch_script"`
+	Ascii       string `yaml:"distro_ascii"`
+	FetchScript string `yaml:"fetch_script"`
 }
 
 type DistroInfo struct {
@@ -31,10 +32,10 @@ func main() {
 
 func readConfig() {
 	// Get home directory
-	homedir, _ := os.UserConfigDir()
+	configDir, _ := os.UserConfigDir()
 	// Find valid config directory
-	if _, err := os.Stat(path.Join(homedir, "stormfetch/config.yaml")); err == nil {
-		configPath = path.Join(homedir, "stormfetch/config.yaml")
+	if _, err := os.Stat(path.Join(configDir, "stormfetch/config.yaml")); err == nil {
+		configPath = path.Join(configDir, "stormfetch/config.yaml")
 	} else if _, err := os.Stat("/etc/stormfetch/config.yaml"); err == nil {
 		configPath = "/etc/stormfetch/config.yaml"
 	} else {
@@ -49,33 +50,32 @@ func readConfig() {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	// Write fetch script to file
-	temp, err := os.CreateTemp("/tmp", "stormfetch")
-	if err != nil {
-		return
+	if config.FetchScript == "" {
+		log.Fatalf("Fetch script path is empty")
+	} else if config.FetchScript != "auto" {
+		stat, err := os.Stat(config.FetchScript)
+		if err != nil {
+			log.Fatalf("Fetch script file not found: %s", err.Error())
+		} else if stat.IsDir() {
+			log.Fatalf("Fetch script path points to a directory")
+		}
 	}
-	err = os.WriteFile(temp.Name(), []byte(config.Fetch), 644)
-	if err != nil {
-		return
+	if _, err := os.Stat(path.Join(configDir, "stormfetch/fetch_script.sh")); err == nil {
+		fetchScriptPath = path.Join(configDir, "stormfetch/fetch_script.sh")
+	} else if _, err := os.Stat("/etc/stormfetch/fetch_script.sh"); err == nil {
+		fetchScriptPath = "/etc/stormfetch/fetch_script.sh"
+	} else {
+		log.Fatalf("Fetch script file not found: %s", err.Error())
 	}
 	//Execute fetch script
-	cmd := exec.Command("/bin/sh", configPath)
-	workdir, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
-	cmd.Dir = workdir
+	cmd := exec.Command("/bin/bash", fetchScriptPath)
+	cmd.Dir = path.Dir(fetchScriptPath)
 	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env, "DISTRO_LONG_NAME="+getDistroInfo().LongName)
 	cmd.Env = append(cmd.Env, "DISTRO_SHORT_NAME="+getDistroInfo().ShortName)
 	out, err := cmd.Output()
 	if err != nil {
 		log.Fatal(err)
-	}
-	err = os.Remove(temp.Name())
-	if err != nil {
-		return
 	}
 	// Print Distro Information
 	ascii := getDistroAscii()
