@@ -10,7 +10,6 @@ import (
 	"strings"
 )
 
-var asciiPath string = ""
 var configPath string = ""
 
 var config StormfetchConfig = StormfetchConfig{}
@@ -40,14 +39,6 @@ func readConfig() {
 		configPath = "/etc/stormfetch/config.yaml"
 	} else {
 		log.Fatalf("Config file not found: %s", err.Error())
-	}
-	// Find valid ascii directory
-	if stat, err := os.Stat(path.Join(homedir, "stormfetch/ascii/")); err == nil && stat.IsDir() {
-		asciiPath = path.Join(homedir, "stormfetch/ascii/")
-	} else if stat, err := os.Stat("/etc/stormfetch/ascii/"); err == nil && stat.IsDir() {
-		asciiPath = "/etc/stormfetch/ascii/"
-	} else {
-		log.Fatal("Ascii directory not found")
 	}
 	// Parse config
 	bytes, err := os.ReadFile(configPath)
@@ -189,8 +180,26 @@ func getDistroAscii() string {
 	} else {
 		id = config.Ascii
 	}
-	if _, err := os.Stat(path.Join(asciiPath, id)); err == nil {
-		bytes, err := os.ReadFile(path.Join(asciiPath, id))
+	userConfDir, err := os.UserConfigDir()
+	if err != nil {
+		if _, err := os.Stat(path.Join("/etc/stormfetch/ascii/", id)); err == nil {
+			bytes, err := os.ReadFile(path.Join("/etc/stormfetch/ascii/", id))
+			if err != nil {
+				return defaultAscii
+			}
+			return string(bytes)
+		} else {
+			return defaultAscii
+		}
+	}
+	if _, err := os.Stat(path.Join(userConfDir, "stormfetch/ascii/", id)); err == nil {
+		bytes, err := os.ReadFile(path.Join(userConfDir, "stormfetch/ascii/", id))
+		if err != nil {
+			return defaultAscii
+		}
+		return string(bytes)
+	} else if _, err := os.Stat(path.Join("/etc/stormfetch/ascii/", id)); err == nil {
+		bytes, err := os.ReadFile(path.Join("/etc/stormfetch/ascii/", id))
 		if err != nil {
 			return defaultAscii
 		}
