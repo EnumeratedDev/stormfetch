@@ -43,11 +43,11 @@ get_total_mem() {
 }
 
 get_free_mem() {
-    free --mebi -t | grep 'Total' | tr -s ' ' | cut -d" " -f3
+    free --mebi -t | grep 'Total' | tr -s ' ' | cut -d" " -f4
 }
 
 get_used_mem() {
-    free --mebi -t | grep 'Total' | tr -s ' ' | cut -d" " -f4
+    free --mebi -t | grep 'Total' | tr -s ' ' | cut -d" " -f3
 }
 
 get_de_wm() {
