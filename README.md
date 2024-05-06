@@ -16,5 +16,5 @@ make
 ```
 - Run the following command to install stormfetch into your system. You may also append a DESTDIR variable at the end of this line if you wish to install in a different location
 ```
-make install prefix=/usr
+make install PREFIX=/usr SYSCONFDIR=/etc
 ```

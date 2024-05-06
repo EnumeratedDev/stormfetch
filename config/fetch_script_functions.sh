@@ -15,46 +15,52 @@ get_shell() {
         echo "Unknown"
         ;;
     sh|ash|dash|es)
-        echo ${SHELL##*/} $(${SHELL##*/} --version)
+        echo "${SHELL##*/} $(${SHELL##*/} --version)"
+        ;;
+    bash)
+        echo "${SHELL##*/} $(${SHELL##*/} -c "echo "'$BASH_VERSION')"
         ;;
     *)
         SHELL_NAME=${SHELL##*/}
         SHELL_VERSION="$($SHELL --version)"
-        SHELL_VERSION=$(echo $SHELL_VERSION | sed 's/,//g')
-        SHELL_VERSION=$(echo $SHELL_VERSION | sed 's/ //g')
-        SHELL_VERSION=$(echo $SHELL_VERSION | sed 's/version//g')
-        SHELL_VERSION=$(echo $SHELL_VERSION | sed "s/${SHELL_NAME}//g")
-        echo $SHELL_NAME $SHELL_VERSION
+        SHELL_VERSION=$(SHELL_VERSION//,//)
+        SHELL_VERSION=$(SHELL_VERSION// //)
+        SHELL_VERSION=$(SHELL_VERSION//VERSION//)
+        SHELL_VERSION=$(SHELL_VERSION//"$SHELL_NAME"//)
+        echo "$SHELL_NAME $SHELL_VERSION"
+        unset SHELL_NAME
+        unset SHELL_VERSION
         ;;
     esac
 }
 
 get_cpu_name() {
-    echo $(grep -m1 "model name" /proc/cpuinfo | cut -d: -f2 | xargs)
+    grep -m1 "model name" /proc/cpuinfo | cut -d: -f2 | xargs
 }
 
 get_total_mem() {
-    echo $(free --mebi -t | grep 'Total' | tr -s ' ' | cut -d" " -f2)
+     free --mebi -t | grep 'Total' | tr -s ' ' | cut -d" " -f2
 }
 
 get_free_mem() {
-    echo $(free --mebi -t | grep 'Total' | tr -s ' ' | cut -d" " -f3)
+    free --mebi -t | grep 'Total' | tr -s ' ' | cut -d" " -f3
 }
 
 get_used_mem() {
-    echo $(free --mebi -t | grep 'Total' | tr -s ' ' | cut -d" " -f4)
+    free --mebi -t | grep 'Total' | tr -s ' ' | cut -d" " -f4
 }
 
 get_de_wm() {
     if [[ $DESKTOP_SESSION == "plasma" ]]; then
       echo "KDE Plasma $(plasmashell --version | sed 's/plasmashell //g')"
     else
-      echo $DESKTOP_SESSION
+      echo "$DESKTOP_SESSION"
     fi
 }
 
 get_screen_resolution() {
-    if xhost >& /dev/null ; then echo $(xdpyinfo | grep dimensions | tr -s ' ' | cut -d " " -f3)
+    if xhost >& /dev/null ;then
+      xdpyinfo | grep dimensions | tr -s ' ' | cut -d " " -f3
     fi
 }
 

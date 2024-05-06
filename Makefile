@@ -14,9 +14,9 @@ build:
 
 install: build/stormfetch config/
 	mkdir -p $(DESTDIR)$(BINDIR)
-	mkdir -p $(DESTDIR)$(SYSCONFDIR)"/stormfetch/"
-	cp build/stormfetch $(DESTDIR)$(BINDIR)"/stormfetch"
-	cp -r config/. $(DESTDIR)$(SYSCONFDIR)"/stormfetch/"
+	mkdir -p $(DESTDIR)$(SYSCONFDIR)/stormfetch/
+	cp build/stormfetch $(DESTDIR)$(BINDIR)/stormfetch
+	cp -r config/. $(DESTDIR)$(SYSCONFDIR)/stormfetch/
 
 clean:
 	rm -r build/
