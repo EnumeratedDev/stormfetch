@@ -138,25 +138,18 @@ func getDistroInfo() DistroInfo {
 	}
 
 	switch distroID {
-	case "debian":
-		return DistroInfo{
-			ID:        "debian",
-			LongName:  releaseMap["PRETTY_NAME"],
-			ShortName: releaseMap["NAME"],
-		}
-	case "ubuntu":
-		return DistroInfo{
-			ID:        "ubuntu",
-			LongName:  releaseMap["PRETTY_NAME"],
-			ShortName: releaseMap["NAME"],
-		}
-	case "arch":
-		return DistroInfo{
-			ID:        "arch",
-			LongName:  releaseMap["PRETTY_NAME"],
-			ShortName: releaseMap["NAME"],
-		}
 	default:
+		if id, ok := releaseMap["ID"]; ok {
+			if longName, ok := releaseMap["PRETTY_NAME"]; ok {
+				if shortName, ok := releaseMap["NAME"]; ok {
+					return DistroInfo{
+						ID:        id,
+						LongName:  longName,
+						ShortName: shortName,
+					}
+				}
+			}
+		}
 		return DistroInfo{
 			ID:        "unknown",
 			LongName:  "Unknown",
