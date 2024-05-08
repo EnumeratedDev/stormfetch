@@ -7,10 +7,13 @@ endif
 ifeq ($(SYSCONFDIR),)
     SYSCONFDIR := $(PREFIX)/etc
 endif
+ifeq ($(GO),)
+    GO := /usr/bin/go
+endif
 
 build:
 	mkdir -p build
-	go build -o build/stormfetch stormfetch
+	$(GO) build -o build/stormfetch stormfetch
 
 install: build/stormfetch config/
 	mkdir -p $(DESTDIR)$(BINDIR)
