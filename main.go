@@ -16,8 +16,9 @@ var fetchScriptPath = ""
 var config = StormfetchConfig{}
 
 type StormfetchConfig struct {
-	Ascii       string `yaml:"distro_ascii"`
-	FetchScript string `yaml:"fetch_script"`
+	Ascii             string `yaml:"distro_ascii"`
+	FetchScript       string `yaml:"fetch_script"`
+	DependencyWarning bool   `yaml:"dependency_warning"`
 }
 
 type DistroInfo struct {
@@ -66,6 +67,23 @@ func readConfig() {
 		fetchScriptPath = "/etc/stormfetch/fetch_script.sh"
 	} else {
 		log.Fatalf("Fetch script file not found: %s", err.Error())
+	}
+	// Show Dependency warning if enabled
+	if config.DependencyWarning {
+		dependencies := []string{"lshw", "xhost", "xdpyinfo"}
+		var missing []string
+		for _, depend := range dependencies {
+			if _, err := os.Stat(path.Join("/usr/bin/", depend)); err != nil {
+				missing = append(missing, depend)
+			}
+		}
+		if len(missing) != 0 {
+			fmt.Println("[WARNING] Stormfetch functionality may be limited due to the following dependencies not being installed:")
+			for _, depend := range missing {
+				fmt.Println(depend)
+			}
+			fmt.Println("You can disable this warning through your stormfetch config")
+		}
 	}
 	//Execute fetch script
 	cmd := exec.Command("/bin/bash", fetchScriptPath)
