@@ -11,7 +11,11 @@ if command_exists lshw; then
 fi
 echo "Memory: $(get_used_mem) MiB / $(get_total_mem) MiB"
 if xhost >& /dev/null ; then
-  echo "DE/WM: $(get_de_wm)"
-  echo "Screen Resolution: $(get_screen_resolution)"
+  if get_de_wm &> /dev/null; then
+    echo "DE/WM: $(get_de_wm)"
+  fi
+  if command_exists xdpyinfo ; then
+    echo "Screen Resolution: $(get_screen_resolution)"
+  fi
 fi
 
