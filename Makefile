@@ -18,5 +18,13 @@ install: build/stormfetch config/
 	cp build/stormfetch $(DESTDIR)$(BINDIR)/stormfetch
 	cp -r config/. $(DESTDIR)$(SYSCONFDIR)/stormfetch/
 
+compress: build/stormfetch config/
+	mkdir -p stormfetch/$(BINDIR)
+	mkdir -p stormfetch/$(SYSCONFDIR)/stormfetch/
+	cp build/stormfetch stormfetch/$(BINDIR)/stormfetch
+	cp -r config/. stormfetch/$(SYSCONFDIR)/stormfetch/
+	tar --owner=root --group=root -czf stormfetch.tar.gz stormfetch
+	rm -r stormfetch
+
 clean:
 	rm -r build/
