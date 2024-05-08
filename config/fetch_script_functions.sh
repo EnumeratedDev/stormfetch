@@ -23,10 +23,10 @@ get_shell() {
     *)
         SHELL_NAME=${SHELL##*/}
         SHELL_VERSION="$($SHELL --version)"
-        SHELL_VERSION=$(SHELL_VERSION//,//)
-        SHELL_VERSION=$(SHELL_VERSION// //)
-        SHELL_VERSION=$(SHELL_VERSION//VERSION//)
-        SHELL_VERSION=$(SHELL_VERSION//"$SHELL_NAME"//)
+        SHELL_VERSION=${SHELL_VERSION//","}
+        SHELL_VERSION=${SHELL_VERSION//" "}
+        SHELL_VERSION=${SHELL_VERSION//"version"}
+        SHELL_VERSION=${SHELL_VERSION//"$SHELL_NAME"}
         echo "$SHELL_NAME $SHELL_VERSION"
         unset SHELL_NAME
         unset SHELL_VERSION
@@ -51,7 +51,7 @@ get_used_mem() {
 }
 
 get_de_wm() {
-    if [[ $DESKTOP_SESSION == "plasma" ]]; then
+    if [[ $DESKTOP_SESSION =~ "plasma" ]]; then
       echo "KDE Plasma $(plasmashell --version | sed 's/plasmashell //g')"
     else
       echo "$DESKTOP_SESSION"
