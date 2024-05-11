@@ -6,14 +6,17 @@
 - [CapCreeperGR ](https://gitlab.com/CapCreeperGR)
 
 ### Project Information
-Stormfetch is a program that can read your system's information and display it in the terminal along with ascii art of the linux distribution you are running.
-Stormfetch is still in beta and distro compatibility is limited. If you would like to contribute ascii art or add other compatibility features feel free to create a pull request or notify me through gitlab issues
+Stormfetch is a program that can read your system's information and display it in the terminal along with the ASCII art of the Linux distribution you are running.
+Stormfetch is still in beta, so distro compatibility is limited. If you would like to contribute ASCII art or add other compatibility features feel free to create a pull request or notify me through GitLab Issues.
 
 ### Installation Guide
+#### AUR
+- If you are on Arch Linux, you can use your favorite AUR manager to install the `stormfetch` package.
+#### Building from source
 - Download `go` from your package manager or from the go website
 - Download `make` from your package manager
 - (Optional) Download `xorg-xhost` from your package manager to display DE/WM and monitor information
-- (Optional) Download `xorg-xdpyinfo` from your package manager to display Screen Resolution
+- (Optional) Download `xorg-xdpyinfo` from your package manager to display screen resolution
 - (Optional) Download `lshw` from your package manager to display GPU information
 - Run the following command to compile the project
 ```
