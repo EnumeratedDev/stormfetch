@@ -10,6 +10,9 @@ Stormfetch is a program that can read your system's information and display it i
 Stormfetch is still in beta and distro compatibility is limited. If you would like to contribute ascii art or add other compatibility features feel free to create a pull request or notify me through gitlab issues
 
 ### Installation Guide
+#### AUR
+- If you are on Arch Linux, you can use your favorite AUR manager to install the `stormfetch` package.
+#### Building from source
 - Download `go` from your package manager or from the go website
 - Download `make` from your package manager
 - (Optional) Download `xorg-xhost` from your package manager to display DE/WM and monitor information
