@@ -15,12 +15,19 @@ import (
 var configPath = ""
 var fetchScriptPath = ""
 
-var config = StormfetchConfig{}
+var config = StormfetchConfig{
+	Ascii:             "auto",
+	FetchScript:       "auto",
+	AnsiiColors:       make([]int, 0),
+	ForceConfigAnsii:  false,
+	DependencyWarning: true,
+}
 
 type StormfetchConfig struct {
 	Ascii             string `yaml:"distro_ascii"`
 	FetchScript       string `yaml:"fetch_script"`
 	AnsiiColors       []int  `yaml:"ansii_colors"`
+	ForceConfigAnsii  bool   `yaml:"force_config_ansii"`
 	DependencyWarning bool   `yaml:"dependency_warning"`
 }
 
@@ -88,16 +95,54 @@ func readConfig() {
 			fmt.Println("You can disable this warning through your stormfetch config")
 		}
 	}
+	// Fetch ascii art and apply colors
+	colorMap := make(map[string]string)
+	colorMap["C0"] = "C0=\033[0m"
+	setColorMap := func() {
+		for i, color := range config.AnsiiColors {
+			if i > 6 {
+				break
+			}
+			colorMap["C"+strconv.Itoa(i+1)] = fmt.Sprintf("\033[38;5;%dm", color)
+		}
+	}
+	setColorMap()
+	ascii := ""
+	if strings.HasPrefix(getDistroAsciiArt(), "#/") {
+		firstLine := strings.Split(getDistroAsciiArt(), "\n")[0]
+		if !config.ForceConfigAnsii {
+			ansiiColors := strings.Split(strings.TrimPrefix(firstLine, "#/"), ";")
+			for i, color := range ansiiColors {
+				atoi, err := strconv.Atoi(color)
+				if err != nil {
+					log.Fatal(err)
+				}
+				if i < len(config.AnsiiColors) {
+					config.AnsiiColors[i] = atoi
+				} else {
+					config.AnsiiColors = append(config.AnsiiColors, atoi)
+				}
+			}
+			setColorMap()
+		}
+		ascii = os.Expand(getDistroAsciiArt(), func(s string) string {
+			return colorMap[s]
+		})
+		ascii = strings.TrimPrefix(ascii, firstLine+"\n")
+	} else {
+		ascii = os.Expand(getDistroAsciiArt(), func(s string) string {
+			return colorMap[s]
+		})
+	}
+	asciiSplit := strings.Split(ascii, "\n")
+	asciiNoColor := stripAnsii(ascii)
 	//Execute fetch script
 	cmd := exec.Command("/bin/bash", fetchScriptPath)
 	cmd.Dir = path.Dir(fetchScriptPath)
 	cmd.Env = os.Environ()
 	cmd.Env = append(cmd.Env, "C0=\033[0m")
-	for i, color := range config.AnsiiColors {
-		if i > 6 {
-			break
-		}
-		cmd.Env = append(cmd.Env, fmt.Sprintf("C%d=\033[38;5;%dm", i+1, color))
+	for key, value := range colorMap {
+		cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", key, value))
 	}
 	cmd.Env = append(cmd.Env, "DISTRO_LONG_NAME="+getDistroInfo().LongName)
 	cmd.Env = append(cmd.Env, "DISTRO_SHORT_NAME="+getDistroInfo().ShortName)
@@ -105,21 +150,6 @@ func readConfig() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// Fetch ascii art and apply colors
-
-	colorMap := make(map[string]string)
-	colorMap["C0"] = "C0=\033[0m"
-	for i, color := range config.AnsiiColors {
-		if i > 6 {
-			break
-		}
-		colorMap["C"+strconv.Itoa(i+1)] = fmt.Sprintf("\033[38;5;%dm", color)
-	}
-	ascii := os.Expand(getDistroAsciiArt(), func(s string) string {
-		return colorMap[s]
-	})
-	asciiSplit := strings.Split(ascii, "\n")
-	asciiNoColor := stripAnsii(ascii)
 	// Print Distro Information
 	maxWidth := 0
 	for _, line := range strings.Split(asciiNoColor, "\n") {
