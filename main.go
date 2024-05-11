@@ -7,6 +7,8 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"regexp"
+	"strconv"
 	"strings"
 )
 
@@ -18,6 +20,7 @@ var config = StormfetchConfig{}
 type StormfetchConfig struct {
 	Ascii             string `yaml:"distro_ascii"`
 	FetchScript       string `yaml:"fetch_script"`
+	AnsiiColors       []int  `yaml:"ansii_colors"`
 	DependencyWarning bool   `yaml:"dependency_warning"`
 }
 
@@ -89,29 +92,63 @@ func readConfig() {
 	cmd := exec.Command("/bin/bash", fetchScriptPath)
 	cmd.Dir = path.Dir(fetchScriptPath)
 	cmd.Env = os.Environ()
+	cmd.Env = append(cmd.Env, "C0=\033[0m")
+	for i, color := range config.AnsiiColors {
+		if i > 6 {
+			break
+		}
+		cmd.Env = append(cmd.Env, fmt.Sprintf("C%d=\033[38;5;%dm", i+1, color))
+	}
 	cmd.Env = append(cmd.Env, "DISTRO_LONG_NAME="+getDistroInfo().LongName)
 	cmd.Env = append(cmd.Env, "DISTRO_SHORT_NAME="+getDistroInfo().ShortName)
 	out, err := cmd.Output()
 	if err != nil {
 		log.Fatal(err)
 	}
+	// Fetch ascii art and apply colors
+
+	colorMap := make(map[string]string)
+	colorMap["C0"] = "C0=\033[0m"
+	for i, color := range config.AnsiiColors {
+		if i > 6 {
+			break
+		}
+		colorMap["C"+strconv.Itoa(i+1)] = fmt.Sprintf("\033[38;5;%dm", color)
+	}
+	ascii := os.Expand(getDistroAsciiArt(), func(s string) string {
+		return colorMap[s]
+	})
+	asciiSplit := strings.Split(ascii, "\n")
+	asciiNoColor := stripAnsii(ascii)
 	// Print Distro Information
-	ascii := getDistroAscii()
 	maxWidth := 0
-	for _, line := range strings.Split(ascii, "\n") {
+	for _, line := range strings.Split(asciiNoColor, "\n") {
 		if len(line) > maxWidth {
 			maxWidth = len(line)
 		}
 	}
-	for lineIndex, line := range strings.Split(ascii, "\n") {
-		for i := len(line); i < maxWidth+5; i++ {
+	final := ""
+	for lineIndex, line := range asciiSplit {
+		lineVisibleLength := len(strings.Split(asciiNoColor, "\n")[lineIndex])
+		lastAsciiColor := ""
+		if lineIndex != 0 {
+			r := regexp.MustCompile("\033[38;5;[0-9]+m")
+			matches := r.FindAllString(asciiSplit[lineIndex-1], -1)
+			if len(matches) != 0 {
+				lastAsciiColor = r.FindAllString(asciiSplit[lineIndex-1], -1)[len(matches)-1]
+			}
+		}
+		for i := lineVisibleLength; i < maxWidth+5; i++ {
 			line = line + " "
 		}
-		if lineIndex < len(strings.Split(string(out), "\n")) {
-			line = line + strings.Split(string(out), "\n")[lineIndex]
+		asciiSplit[lineIndex] = lastAsciiColor + line
+		str := string(out)
+		if lineIndex < len(strings.Split(str, "\n")) {
+			line = line + strings.Split(str, "\n")[lineIndex]
 		}
-		fmt.Println(line)
+		final += lastAsciiColor + line + "\n"
 	}
+	fmt.Println(final)
 }
 
 func readKeyValueFile(filepath string) (map[string]string, error) {
@@ -176,7 +213,7 @@ func getDistroInfo() DistroInfo {
 	}
 }
 
-func getDistroAscii() string {
+func getDistroAsciiArt() string {
 	defaultAscii :=
 		`    .--.
    |o_o |
@@ -218,4 +255,10 @@ func getDistroAscii() string {
 	} else {
 		return defaultAscii
 	}
+}
+
+func stripAnsii(str string) string {
+	const ansi = "[\u001B\u009B][[\\]()#;?]*(?:(?:(?:[a-zA-Z\\d]*(?:;[a-zA-Z\\d]*)*)?\u0007)|(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PRZcf-ntqry=><~]))"
+	var re = regexp.MustCompile(ansi)
+	return re.ReplaceAllString(str, "")
 }
