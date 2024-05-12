@@ -1,17 +1,18 @@
-           .;ldkO0000Okdl;.
+#/2;7;10;15
+${C2}           .;ldkO0000Okdl;.
        .;d00xl:^''''''^:ok00d;.
      .d00l'                'o00d.
-   .d0Kd'  Okxol:;,.          :O0d.
-  .OKKKK0kOKKKKKKKKKKOxo:,      lKO.
- ,0KKKKKKKKKKKKKKKK0P^,,,^dx:    ;00,
-.OKKKKKKKKKKKKKKKKk'.oOPPb.'0k.   cKO.
-:KKKKKKKKKKKKKKKKK: kKx..dd lKd   'OK:
-dKKKKKKKKKKKOx0KKKd ^0KKKO' kKKc   dKd
-dKKKKKKKKKKKK;.;oOKx,..^..;kKKK0.  dKd
-:KKKKKKKKKKKK0o;...^cdxxOK0O/^^'  .0K:
- kKKKKKKKKKKKKKKK0x;,,......,;od  lKk
- '0KKKKKKKKKKKKKKKKKKKKK00KKOo^  c00'
-  'kKKKOxddxkOO00000Okxoc;''   .dKk'
+   .d0Kd'${C1}  Okxol:;,.          ${C2}:O0d.
+  .OK${C1}KKK0kOKKKKKKKKKKOxo:,      ${C2}lKO.
+ ,0K${C1}KKKKKKKKKKKKKKK0P^${C2},,,${C1}^dx:${C2}    ;00,
+.OK${C1}KKKKKKKKKKKKKKKk'${C2}.oOPPb.${C1}'0k.${C2}   cKO.
+:KK${C1}KKKKKKKKKKKKKKK: ${C2}kKx..dd ${C1}lKd${C2}   'OK:
+dKK${C1}KKKKKKKKKOx0KKKd ${C2}^0KKKO' ${C1}kKKc${C2}   dKd
+dKK${C1}KKKKKKKKKK;.;oOKx,..${C2}^${C1}..;kKKK0.${C2}  dKd
+:KK${C1}KKKKKKKKKK0o;...^cdxxOK0O/^^'  ${C2}.0K:
+ kKK${C1}KKKKKKKKKKKKK0x;,,......,;od  ${C2}lKk
+ '0K${C1}KKKKKKKKKKKKKKKKKKKK00KKOo^  ${C2}c00'
+  'kK${C1}KKOxddxkOO00000Okxoc;''   ${C2}.dKk'
     l0Ko.                    .c00l'
      'l0Kk:.              .;xK0l'
         'lkK0xl:;,,,,;:ldO0kl'

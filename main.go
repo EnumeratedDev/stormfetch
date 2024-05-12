@@ -97,13 +97,14 @@ func readConfig() {
 	}
 	// Fetch ascii art and apply colors
 	colorMap := make(map[string]string)
-	colorMap["C0"] = "C0=\033[0m"
+	colorMap["C0"] = "\033[0m"
 	setColorMap := func() {
-		for i, color := range config.AnsiiColors {
-			if i > 6 {
-				break
+		for i := 0; i < 6; i++ {
+			if i > len(config.AnsiiColors)-1 {
+				colorMap["C"+strconv.Itoa(i+1)] = "\033[0m"
+				continue
 			}
-			colorMap["C"+strconv.Itoa(i+1)] = fmt.Sprintf("\033[38;5;%dm", color)
+			colorMap["C"+strconv.Itoa(i+1)] = fmt.Sprintf("\033[1m\033[38;5;%dm", config.AnsiiColors[i])
 		}
 	}
 	setColorMap()
@@ -174,7 +175,7 @@ func readConfig() {
 		asciiSplit[lineIndex] = lastAsciiColor + line
 		str := string(out)
 		if lineIndex < len(strings.Split(str, "\n")) {
-			line = line + strings.Split(str, "\n")[lineIndex]
+			line = line + colorMap["C0"] + strings.Split(str, "\n")[lineIndex]
 		}
 		final += lastAsciiColor + line + "\n"
 	}

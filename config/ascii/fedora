@@ -1,19 +1,20 @@
-             .',;::::;,'.
+#/12;7;4;15
+${C1}             .',;::::;,'.
          .';:cccccccccccc:;,.
       .;cccccccccccccccccccccc;.
     .:cccccccccccccccccccccccccc:.
-  .;ccccccccccccc;.:dddl:.;ccccccc;.
- .:ccccccccccccc;OWMKOOXMWd;ccccccc:.
-.:ccccccccccccc;KMMc;cc;xMMc;ccccccc:.
-,cccccccccccccc;MMM.;cc;;WW:;cccccccc,
-:cccccccccccccc;MMM.;cccccccccccccccc:
-:ccccccc;oxOOOo;MMM0OOk.;cccccccccccc:
-cccccc;0MMKxdd:;MMMkddc.;cccccccccccc;
-ccccc;XM0';cccc;MMM.;cccccccccccccccc'
-ccccc;MMo;ccccc;MMW.;ccccccccccccccc;
-ccccc;0MNc.ccc.xMMd;ccccccccccccccc;
-cccccc;dNMWXXXWM0:;cccccccccccccc:,
-cccccccc;.:odl:.;cccccccccccccc:,.
+  .;ccccccccccccc;${C2}.:dddl:.${C1};ccccccc;.
+ .:ccccccccccccc;${C2}OWMKOOXMWd${C1};ccccccc:.
+.:ccccccccccccc;${C2}KMMc${C1};cc;${C2}xMMc${C1};ccccccc:.
+,cccccccccccccc;${C2}MMM.${C1};cc;${C2};WW:${C1};cccccccc,
+:cccccccccccccc;${C2}MMM.${C1};cccccccccccccccc:
+:ccccccc;${C2}oxOOOo${C1};${C2}MMM0OOk.${C1};cccccccccccc:
+cccccc;${C2}0MMKxdd:${C1};${C2}MMMkddc.${C1};cccccccccccc;
+ccccc;${C2}XM0'${C1};cccc;${C2}MMM.${C1};cccccccccccccccc'
+ccccc;${C2}MMo${C1};ccccc;${C2}MMW.${C1};ccccccccccccccc;
+ccccc;${C2}0MNc.${C1}ccc${C2}.xMMd${C1};ccccccccccccccc;
+cccccc;${C2}dNMWXXXWM0:${C1};cccccccccccccc:,
+cccccccc;${C2}.:odl:.${C1};cccccccccccccc:,.
 :cccccccccccccccccccccccccccc:'.
 .:cccccccccccccccccccccc:;,..
   '::cccccccccccccc::;,.
