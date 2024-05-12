@@ -65,6 +65,8 @@ get_de_wm() {
         echo "LXDE"
     elif ps -e | grep "sway" &> /dev/null ; then
         echo "Sway $(sway --version | awk '{print $2}')"
+    elif ps -e | grep "bspwm" &> /dev/null ; then
+        echo "Bspwm $(bspwm -v)"
     elif ps -e | grep "icewm-session" &> /dev/null ; then
         echo "IceWM $(icewm --version | awk '{print $2}' | sed 's/,//g')"
     elif [ ! -z $DESKTOP_SESSION ]; then
