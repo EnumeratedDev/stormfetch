@@ -34,22 +34,6 @@ get_shell() {
     esac
 }
 
-get_cpu_name() {
-    grep -m1 "model name" /proc/cpuinfo | cut -d: -f2 | xargs
-}
-
-get_total_mem() {
-     free --mebi -t | grep 'Total' | tr -s ' ' | cut -d" " -f2
-}
-
-get_free_mem() {
-    free --mebi -t | grep 'Total' | tr -s ' ' | cut -d" " -f4
-}
-
-get_used_mem() {
-    free --mebi -t | grep 'Total' | tr -s ' ' | cut -d" " -f3
-}
-
 get_de_wm() {
     if ps -e | grep "plasmashell" &> /dev/null ; then
         echo "KDE Plasma $(plasmashell --version | awk '{print $2}')"

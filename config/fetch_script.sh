@@ -5,11 +5,11 @@ echo -e "${C3}Hostname: ${C4}$(cat /etc/hostname)"
 echo -e "${C3}Kernel: ${C4}$(uname -s) $(uname -r)"
 echo -e "${C3}Packages: ${C4}$(get_packages)"
 echo -e "${C3}Shell: ${C4}$(get_shell)"
-echo -e "${C3}CPU: ${C4}$(get_cpu_name) ($(nproc) threads)"
-if command_exists lshw; then
-  echo -e "${C3}GPU: ${C4}$(lshw -class display 2> /dev/null | grep 'product' | cut -d":" -f2 | xargs)"
+echo -e "${C3}CPU: ${C4}${CPU_MODEL} (${CPU_THREADS} threads)"
+if [ ! -z "$GPU_MODEL" ]; then
+  echo -e "${C3}GPU: ${C4}${GPU_MODEL})"
 fi
-echo -e "${C3}Memory: ${C4}$(get_used_mem) MiB / $(get_total_mem) MiB"
+echo -e "${C3}Memory: ${C4}${MEM_USED} MiB / ${MEM_TOTAL} MiB"
 if xhost >& /dev/null ; then
   if get_de_wm &> /dev/null; then
     echo -e "${C3}DE/WM: ${C4}$(get_de_wm)"
