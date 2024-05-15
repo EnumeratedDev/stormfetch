@@ -151,6 +151,14 @@ func readConfig() {
 	}
 	cmd.Env = append(cmd.Env, "DE_WM="+GetDEWM())
 	cmd.Env = append(cmd.Env, "USER_SHELL="+GetShell())
+	cmd.Env = append(cmd.Env, "DISPLAY_PROTOCOL="+GetDisplayProtocol())
+	monitors := getMonitorResolution()
+	if len(monitors) != 0 {
+		cmd.Env = append(cmd.Env, "CONNECTED_MONITORS="+strconv.Itoa(len(monitors)))
+		for i, monitor := range monitors {
+			cmd.Env = append(cmd.Env, "MONITOR"+strconv.Itoa(i+1)+"="+monitor)
+		}
+	}
 	if getGPUName() != "" {
 		cmd.Env = append(cmd.Env, "GPU_MODEL="+getGPUName())
 	}

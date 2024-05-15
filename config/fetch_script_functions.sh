@@ -9,12 +9,6 @@ command_exists() {
     fi
 }
 
-get_screen_resolution() {
-    if xhost >& /dev/null && command_exists xdpyinfo; then
-        xdpyinfo | grep dimensions | tr -s ' ' | cut -d " " -f3
-    fi
-}
-
 get_packages() {
     ARRAY=()
     if command_exists dpkg; then

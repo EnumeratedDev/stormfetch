@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"github.com/jackmordaunt/ghw"
 	"github.com/mitchellh/go-ps"
 	"log"
@@ -281,6 +282,47 @@ func GetDEWM() string {
 		return "IceWM " + runCommand("icewm --version | awk '{print $2}'")
 	}
 	return ""
+}
+
+func GetDisplayProtocol() string {
+	protocol := os.Getenv("XDG_SESSION_TYPE")
+	if protocol == "x11" {
+		return "X11"
+	} else if protocol == "wayland" {
+		return "Wayland"
+	}
+	return ""
+}
+
+func getMonitorResolution() []string {
+	var monitors []string
+	runCommand := func(command string) string {
+		cmd := exec.Command("/bin/bash", "-c", command)
+		workdir, err := os.Getwd()
+		if err != nil {
+			return ""
+		}
+		cmd.Dir = workdir
+		cmd.Env = os.Environ()
+		out, err := cmd.Output()
+		if err != nil {
+			return ""
+		}
+		return strings.TrimSpace(string(out))
+	}
+
+	if GetDisplayProtocol() == "X11" {
+		if _, err := os.Stat("/usr/bin/xrandr"); err != nil {
+			return monitors
+		}
+		connections := strings.Split(runCommand("xrandr --query | grep -w \"connected\" | awk '{print $1}'"), "\n")
+		for i, con := range connections {
+			Xaxis := runCommand(fmt.Sprintf("xrandr --current | grep -m%d '*' | tail -n1 | uniq | awk '{print $1}' | cut -d 'x' -f1", i+1))
+			Yaxis := runCommand(fmt.Sprintf("xrandr --current | grep -m%d '*' | tail -n1 | uniq | awk '{print $1}' | cut -d 'x' -f2", i+1))
+			monitors = append(monitors, con+" ("+Xaxis+"x"+Yaxis+")")
+		}
+	}
+	return monitors
 }
 
 func stripAnsii(str string) string {
