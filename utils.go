@@ -108,6 +108,9 @@ func getCPUName() string {
 	if err != nil {
 		return ""
 	}
+	if len(cpu.Processors) == 0 {
+		return ""
+	}
 	return cpu.Processors[0].Model
 }
 
@@ -141,7 +144,7 @@ type Memory struct {
 	MemAvailable int
 }
 
-func GetMemoryInfo() Memory {
+func GetMemoryInfo() *Memory {
 	toInt := func(raw string) int {
 		if raw == "" {
 			return 0
@@ -159,6 +162,9 @@ func GetMemoryInfo() Memory {
 		return keyValue[0], toInt(keyValue[1])
 	}
 
+	if _, err := os.Stat("/proc/meminfo"); err != nil {
+		return nil
+	}
 	file, err := os.Open("/proc/meminfo")
 	if err != nil {
 		panic(err)
@@ -178,7 +184,7 @@ func GetMemoryInfo() Memory {
 			res.MemAvailable = value / 1024
 		}
 	}
-	return res
+	return &res
 }
 
 func GetShell() string {

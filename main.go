@@ -144,9 +144,11 @@ func readConfig() {
 	cmd.Env = append(cmd.Env, "CPU_MODEL="+getCPUName())
 	cmd.Env = append(cmd.Env, "CPU_THREADS="+strconv.Itoa(getCPUThreads()))
 	memory := GetMemoryInfo()
-	cmd.Env = append(cmd.Env, "MEM_TOTAL="+strconv.Itoa(memory.MemTotal))
-	cmd.Env = append(cmd.Env, "MEM_USED="+strconv.Itoa(memory.MemTotal-memory.MemAvailable))
-	cmd.Env = append(cmd.Env, "MEM_FREE="+strconv.Itoa(memory.MemAvailable))
+	if memory != nil {
+		cmd.Env = append(cmd.Env, "MEM_TOTAL="+strconv.Itoa(memory.MemTotal))
+		cmd.Env = append(cmd.Env, "MEM_USED="+strconv.Itoa(memory.MemTotal-memory.MemAvailable))
+		cmd.Env = append(cmd.Env, "MEM_FREE="+strconv.Itoa(memory.MemAvailable))
+	}
 	cmd.Env = append(cmd.Env, "DE_WM="+GetDEWM())
 	cmd.Env = append(cmd.Env, "USER_SHELL="+GetShell())
 	if getGPUName() != "" {

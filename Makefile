@@ -13,7 +13,7 @@ endif
 
 build:
 	mkdir -p build
-	$(GO) build -o build/stormfetch stormfetch
+	$(GO) build -ldflags "-w" -o build/stormfetch stormfetch
 
 install: build/stormfetch config/
 	mkdir -p $(DESTDIR)$(BINDIR)
@@ -28,6 +28,9 @@ compress: build/stormfetch config/
 	cp -r config/. stormfetch/$(SYSCONFDIR)/stormfetch/
 	tar --owner=root --group=root -czf stormfetch.tar.gz stormfetch
 	rm -r stormfetch
+
+run: build/stormfetch
+	build/stormfetch
 
 clean:
 	rm -r build/
