@@ -20,7 +20,6 @@ Stormfetch is still in beta, so distro compatibility is limited. If you would li
 - Download `make` from your package manager
 - (Optional) Download `xorg-xhost` from your package manager to display DE/WM and monitor information
 - (Optional) Download `xorg-xdpyinfo` from your package manager to display screen resolution
-- (Optional) Download `lshw` from your package manager to display GPU information
 - Run the following command to compile the project
 ```
 make
