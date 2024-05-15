@@ -11,11 +11,10 @@ if [ ! -z "$GPU_MODEL" ]; then
 fi
 echo -e "${C3}Memory: ${C4}${MEM_USED} MiB / ${MEM_TOTAL} MiB"
 if xhost >& /dev/null ; then
-  if get_de_wm &> /dev/null; then
-    echo -e "${C3}DE/WM: ${C4}$(get_de_wm)"
+  if [ ! -z "$DE_WM" ]; then
+    echo -e "${C3}DE/WM: ${C4}${DE_WM}"
   fi
   if command_exists xdpyinfo ; then
     echo -e "${C3}Screen Resolution: ${C4}$(get_screen_resolution)"
   fi
 fi
-

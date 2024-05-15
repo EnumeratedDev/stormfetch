@@ -147,6 +147,7 @@ func readConfig() {
 	cmd.Env = append(cmd.Env, "MEM_TOTAL="+strconv.Itoa(memory.MemTotal))
 	cmd.Env = append(cmd.Env, "MEM_USED="+strconv.Itoa(memory.MemTotal-memory.MemAvailable))
 	cmd.Env = append(cmd.Env, "MEM_FREE="+strconv.Itoa(memory.MemAvailable))
+	cmd.Env = append(cmd.Env, "DE_WM="+GetDEWM())
 
 	if getGPUName() != "" {
 		cmd.Env = append(cmd.Env, "GPU_MODEL="+getGPUName())

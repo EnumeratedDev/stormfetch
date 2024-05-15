@@ -3,9 +3,13 @@ package main
 import (
 	"bufio"
 	"github.com/jackmordaunt/ghw"
+	"github.com/mitchellh/go-ps"
+	"log"
 	"os"
+	"os/exec"
 	"path"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -174,6 +178,56 @@ func GetMemoryInfo() Memory {
 		}
 	}
 	return res
+}
+
+func GetDEWM() string {
+	processes, err := ps.Processes()
+	if err != nil {
+		log.Fatal(err)
+	}
+	var executables []string
+	for _, process := range processes {
+		executables = append(executables, process.Executable())
+	}
+
+	processExists := func(process string) bool {
+		return slices.Contains(executables, process)
+	}
+	runCommand := func(command string) string {
+		cmd := exec.Command("/bin/bash", "-c", command)
+		workdir, err := os.Getwd()
+		if err != nil {
+			return ""
+		}
+		cmd.Dir = workdir
+		cmd.Env = os.Environ()
+		out, err := cmd.Output()
+		if err != nil {
+			return ""
+		}
+		return string(out)
+	}
+
+	if processExists("plasmashell") {
+		return strings.TrimSpace("KDE Plasma " + runCommand("plasmashell --version | awk '{print $2}'"))
+	} else if processExists("gnome-session") {
+		return strings.TrimSpace("Gnome " + runCommand("gnome-shell --version | awk '{print $3}'"))
+	} else if processExists("xfce4-session") {
+		return strings.TrimSpace("XFCE " + runCommand("xfce4-session --version | grep xfce4-session | awk '{print $2}'"))
+	} else if processExists("cinnamon") {
+		return strings.TrimSpace("Cinnamon " + runCommand("cinnamon --version | awk '{print $3}'"))
+	} else if processExists("mate-panel") {
+		return strings.TrimSpace("MATE " + runCommand("mate-about --version | awk '{print $4}'"))
+	} else if processExists("lxsession") {
+		return "LXDE"
+	} else if processExists("sway") {
+		return strings.TrimSpace("Sway " + runCommand("sway --version | awk '{print $3}'"))
+	} else if processExists("bspwm") {
+		return strings.TrimSpace("Bspwm " + runCommand("bspwm -v"))
+	} else if processExists("icewm-session") {
+		return strings.TrimSpace("IceWM " + runCommand("icewm --version | awk '{print $2}'"))
+	}
+	return ""
 }
 
 func stripAnsii(str string) string {

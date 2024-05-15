@@ -34,32 +34,6 @@ get_shell() {
     esac
 }
 
-get_de_wm() {
-    if ps -e | grep "plasmashell" &> /dev/null ; then
-        echo "KDE Plasma $(plasmashell --version | awk '{print $2}')"
-    elif ps -e | grep "gnome-session" &> /dev/null ; then
-        echo "Gnome $(gnome-shell --version | awk '{print $3}')"
-    elif ps -e | grep "xfce4-session" &> /dev/null ; then
-        echo "XFCE $(xfce4-session --version | grep xfce4-session | awk '{print $2}')"
-    elif ps -e | grep "cinnamon" &> /dev/null ; then
-        echo "Cinnamon $(cinnamon --version | awk '{print $2}')"
-    elif ps -e | grep "mate-panel" &> /dev/null ; then
-        echo "Mate $(mate-about --version | awk '{print $4}')"
-    elif ps -e | grep "lxsession" &> /dev/null ; then
-        echo "LXDE"
-    elif ps -e | grep "sway" &> /dev/null ; then
-        echo "Sway $(sway --version | awk '{print $2}')"
-    elif ps -e | grep "bspwm" &> /dev/null ; then
-        echo "Bspwm $(bspwm -v)"
-    elif ps -e | grep "icewm-session" &> /dev/null ; then
-        echo "IceWM $(icewm --version | awk '{print $2}' | sed 's/,//g')"
-    elif [ ! -z $DESKTOP_SESSION ]; then
-        echo "$DESKTOP_SESSION"
-    else
-        return 1
-    fi
-}
-
 get_screen_resolution() {
     if xhost >& /dev/null && command_exists xdpyinfo; then
         xdpyinfo | grep dimensions | tr -s ' ' | cut -d " " -f3
