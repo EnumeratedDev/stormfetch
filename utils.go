@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"path/filepath"
 	"regexp"
 	"slices"
 	"strconv"
@@ -180,6 +181,52 @@ func GetMemoryInfo() Memory {
 	return res
 }
 
+func GetShell() string {
+	runCommand := func(command string) string {
+		cmd := exec.Command("/bin/bash", "-c", command)
+		workdir, err := os.Getwd()
+		if err != nil {
+			return ""
+		}
+		cmd.Dir = workdir
+		cmd.Env = os.Environ()
+		out, err := cmd.Output()
+		if err != nil {
+			return ""
+		}
+		return strings.TrimSpace(string(out))
+	}
+	file, err := os.ReadFile("/etc/passwd")
+	if err != nil {
+		return ""
+	}
+	str := string(file)
+	shell := ""
+
+	for _, line := range strings.Split(str, "\n") {
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
+		userInfo := strings.Split(line, ":")
+		if userInfo[2] == strconv.Itoa(os.Getuid()) {
+			shell = userInfo[6]
+		}
+	}
+	shellName := filepath.Base(shell)
+	switch shellName {
+	case "dash":
+		return "Dash"
+	case "bash":
+		return "Bash " + runCommand("echo $BASH_VERSION")
+	case "zsh":
+		return "Zsh " + runCommand("$SHELL --version | awk '{print $2}'")
+	case "fish":
+		return "Fish " + runCommand("$SHELL --version | awk '{print $3}'")
+	default:
+		return "Unknown"
+	}
+}
+
 func GetDEWM() string {
 	processes, err := ps.Processes()
 	if err != nil {
@@ -205,27 +252,27 @@ func GetDEWM() string {
 		if err != nil {
 			return ""
 		}
-		return string(out)
+		return strings.TrimSpace(string(out))
 	}
 
 	if processExists("plasmashell") {
-		return strings.TrimSpace("KDE Plasma " + runCommand("plasmashell --version | awk '{print $2}'"))
+		return "KDE Plasma " + runCommand("plasmashell --version | awk '{print $2}'")
 	} else if processExists("gnome-session") {
-		return strings.TrimSpace("Gnome " + runCommand("gnome-shell --version | awk '{print $3}'"))
+		return "Gnome " + runCommand("gnome-shell --version | awk '{print $3}'")
 	} else if processExists("xfce4-session") {
-		return strings.TrimSpace("XFCE " + runCommand("xfce4-session --version | grep xfce4-session | awk '{print $2}'"))
+		return "XFCE " + runCommand("xfce4-session --version | grep xfce4-session | awk '{print $2}'")
 	} else if processExists("cinnamon") {
-		return strings.TrimSpace("Cinnamon " + runCommand("cinnamon --version | awk '{print $3}'"))
+		return "Cinnamon " + runCommand("cinnamon --version | awk '{print $3}'")
 	} else if processExists("mate-panel") {
-		return strings.TrimSpace("MATE " + runCommand("mate-about --version | awk '{print $4}'"))
+		return "MATE " + runCommand("mate-about --version | awk '{print $4}'")
 	} else if processExists("lxsession") {
 		return "LXDE"
 	} else if processExists("sway") {
-		return strings.TrimSpace("Sway " + runCommand("sway --version | awk '{print $3}'"))
+		return "Sway " + runCommand("sway --version | awk '{print $3}'")
 	} else if processExists("bspwm") {
-		return strings.TrimSpace("Bspwm " + runCommand("bspwm -v"))
+		return "Bspwm " + runCommand("bspwm -v")
 	} else if processExists("icewm-session") {
-		return strings.TrimSpace("IceWM " + runCommand("icewm --version | awk '{print $2}'"))
+		return "IceWM " + runCommand("icewm --version | awk '{print $2}'")
 	}
 	return ""
 }
