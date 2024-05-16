@@ -323,23 +323,39 @@ func getMonitorResolution() []string {
 type partition struct {
 	Device     string
 	MountPoint string
+	Label      string
 	TotalSize  uint64
 	UsedSize   uint64
 	FreeSize   uint64
 }
 
 func getMountedPartitions() []partition {
-	entries, err := os.ReadDir("/dev/disk/by-partuuid")
+	partuuids, err := os.ReadDir("/dev/disk/by-partuuid")
 	if err != nil {
 		return nil
+	}
+
+	partlabels, err := os.ReadDir("/dev/disk/by-partlabel")
+	if err != nil {
+		return nil
+	}
+	labels := make(map[string]string)
+	for _, entry := range partlabels {
+		link, err := filepath.EvalSymlinks(filepath.Join("/dev/disk/by-partlabel/", entry.Name()))
+		if err != nil {
+			continue
+		}
+		labels[link] = entry.Name()
 	}
 
 	bytes, err := os.ReadFile("/proc/mounts")
 	if err != nil {
 		return nil
 	}
+
 	mountsRaw := strings.Split(string(bytes), "\n")
 	mounts := make(map[string]string)
+
 	for i := 0; i < len(mountsRaw); i++ {
 		split := strings.Split(mountsRaw[i], " ")
 		if len(split) <= 2 {
@@ -349,7 +365,7 @@ func getMountedPartitions() []partition {
 	}
 
 	var partitions []partition
-	for _, entry := range entries {
+	for _, entry := range partuuids {
 		link, err := filepath.EvalSymlinks(filepath.Join("/dev/disk/by-partuuid/", entry.Name()))
 		if err != nil {
 			continue
@@ -360,9 +376,13 @@ func getMountedPartitions() []partition {
 		p := partition{
 			link,
 			mounts[link],
+			"",
 			0,
 			0,
 			0,
+		}
+		if value, ok := labels[link]; ok {
+			p.Label = value
 		}
 		buf := new(syscall.Statfs_t)
 		err = syscall.Statfs(p.MountPoint, buf)

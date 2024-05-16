@@ -193,6 +193,9 @@ func SetupFetchEnv() []string {
 		for i, part := range partitions {
 			env["PARTITION"+strconv.Itoa(i+1)+"_DEVICE"] = part.Device
 			env["PARTITION"+strconv.Itoa(i+1)+"_MOUNTPOINT"] = part.MountPoint
+			if part.Label != "" {
+				env["PARTITION"+strconv.Itoa(i+1)+"_LABEL"] = part.Label
+			}
 			env["PARTITION"+strconv.Itoa(i+1)+"_TOTAL_SIZE"] = FormatBytes(part.TotalSize)
 			env["PARTITION"+strconv.Itoa(i+1)+"_USED_SIZE"] = FormatBytes(part.UsedSize)
 			env["PARTITION"+strconv.Itoa(i+1)+"_FREE_SIZE"] = FormatBytes(part.FreeSize)
