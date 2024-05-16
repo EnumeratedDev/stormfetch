@@ -102,9 +102,9 @@ func readConfig() {
 		}
 	}
 	setColorMap()
-	ascii := ""
-	if strings.HasPrefix(getDistroAsciiArt(), "#/") {
-		firstLine := strings.Split(getDistroAsciiArt(), "\n")[0]
+	ascii := getDistroAsciiArt()
+	if strings.HasPrefix(ascii, "#/") {
+		firstLine := strings.Split(ascii, "\n")[0]
 		if !config.ForceConfigAnsii {
 			ansiiColors := strings.Split(strings.TrimPrefix(firstLine, "#/"), ";")
 			for i, color := range ansiiColors {
@@ -120,12 +120,12 @@ func readConfig() {
 			}
 			setColorMap()
 		}
-		ascii = os.Expand(getDistroAsciiArt(), func(s string) string {
+		ascii = os.Expand(ascii, func(s string) string {
 			return colorMap[s]
 		})
 		ascii = strings.TrimPrefix(ascii, firstLine+"\n")
 	} else {
-		ascii = os.Expand(getDistroAsciiArt(), func(s string) string {
+		ascii = os.Expand(ascii, func(s string) string {
 			return colorMap[s]
 		})
 	}
@@ -135,32 +135,10 @@ func readConfig() {
 	cmd := exec.Command("/bin/bash", fetchScriptPath)
 	cmd.Dir = path.Dir(fetchScriptPath)
 	cmd.Env = os.Environ()
+	cmd.Env = append(cmd.Env, SetupFetchEnv()...)
 	cmd.Env = append(cmd.Env, "C0=\033[0m")
 	for key, value := range colorMap {
 		cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", key, value))
-	}
-	cmd.Env = append(cmd.Env, "DISTRO_LONG_NAME="+getDistroInfo().LongName)
-	cmd.Env = append(cmd.Env, "DISTRO_SHORT_NAME="+getDistroInfo().ShortName)
-	cmd.Env = append(cmd.Env, "CPU_MODEL="+getCPUName())
-	cmd.Env = append(cmd.Env, "CPU_THREADS="+strconv.Itoa(getCPUThreads()))
-	memory := GetMemoryInfo()
-	if memory != nil {
-		cmd.Env = append(cmd.Env, "MEM_TOTAL="+strconv.Itoa(memory.MemTotal))
-		cmd.Env = append(cmd.Env, "MEM_USED="+strconv.Itoa(memory.MemTotal-memory.MemAvailable))
-		cmd.Env = append(cmd.Env, "MEM_FREE="+strconv.Itoa(memory.MemAvailable))
-	}
-	cmd.Env = append(cmd.Env, "DE_WM="+GetDEWM())
-	cmd.Env = append(cmd.Env, "USER_SHELL="+GetShell())
-	cmd.Env = append(cmd.Env, "DISPLAY_PROTOCOL="+GetDisplayProtocol())
-	monitors := getMonitorResolution()
-	if len(monitors) != 0 {
-		cmd.Env = append(cmd.Env, "CONNECTED_MONITORS="+strconv.Itoa(len(monitors)))
-		for i, monitor := range monitors {
-			cmd.Env = append(cmd.Env, "MONITOR"+strconv.Itoa(i+1)+"="+monitor)
-		}
-	}
-	if getGPUName() != "" {
-		cmd.Env = append(cmd.Env, "GPU_MODEL="+getGPUName())
 	}
 	out, err := cmd.Output()
 	if err != nil {
@@ -195,4 +173,39 @@ func readConfig() {
 		final += lastAsciiColor + line + "\n"
 	}
 	fmt.Println(final)
+}
+
+func SetupFetchEnv() []string {
+	var env = make(map[string]string)
+	env["DISTRO_LONG_NAME"] = getDistroInfo().LongName
+	env["DISTRO_SHORT_NAME"] = getDistroInfo().ShortName
+	env["CPU_MODEL"] = getCPUName()
+	env["CPU_THREADS"] = strconv.Itoa(getCPUThreads())
+	memory := GetMemoryInfo()
+	if memory != nil {
+		env["MEM_TOTAL"] = strconv.Itoa(memory.MemTotal)
+		env["MEM_USED"] = strconv.Itoa(memory.MemTotal - memory.MemAvailable)
+		env["MEM_FREE"] = strconv.Itoa(memory.MemAvailable)
+	}
+	env["DE_WM"] = GetDEWM()
+	env["USER_SHELL"] = GetShell()
+	env["DISPLAY_PROTOCOL"] = GetDisplayProtocol()
+	monitors := getMonitorResolution()
+	if len(monitors) != 0 {
+		env["CONNECTED_MONITORS"] = strconv.Itoa(len(monitors))
+		for i, monitor := range monitors {
+			env["MONITOR"+strconv.Itoa(i+1)] = monitor
+		}
+	}
+	if getGPUName() != "" {
+		env["GPU_MODEL"] = getGPUName()
+	}
+
+	var ret = make([]string, len(env))
+	i := 0
+	for key, value := range env {
+		ret[i] = fmt.Sprintf("%s=%s", key, value)
+		i++
+	}
+	return ret
 }
