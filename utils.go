@@ -312,6 +312,7 @@ func getMonitorResolution() []string {
 			return nil
 		}
 		reply, _ := xinerama.QueryScreens(conn).Reply()
+		conn.Close()
 		for _, screen := range reply.ScreenInfo {
 			monitors = append(monitors, strconv.Itoa(int(screen.Width))+"x"+strconv.Itoa(int(screen.Height)))
 		}
