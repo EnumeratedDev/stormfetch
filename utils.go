@@ -2,7 +2,8 @@ package main
 
 import (
 	"bufio"
-	"fmt"
+	"github.com/BurntSushi/xgb"
+	"github.com/BurntSushi/xgb/xinerama"
 	"github.com/jackmordaunt/ghw"
 	"github.com/mitchellh/go-ps"
 	"log"
@@ -133,10 +134,12 @@ func getGPUName() string {
 	if err != nil {
 		return ""
 	}
-	if len(gpu.GraphicsCards) == 0 {
-		return ""
+	for _, graphics := range gpu.GraphicsCards {
+		if graphics.DeviceInfo != nil {
+			return graphics.DeviceInfo.Product.Name
+		}
 	}
-	return gpu.GraphicsCards[0].DeviceInfo.Product.Name
+	return ""
 }
 
 type Memory struct {
@@ -296,30 +299,18 @@ func GetDisplayProtocol() string {
 
 func getMonitorResolution() []string {
 	var monitors []string
-	runCommand := func(command string) string {
-		cmd := exec.Command("/bin/bash", "-c", command)
-		workdir, err := os.Getwd()
-		if err != nil {
-			return ""
-		}
-		cmd.Dir = workdir
-		cmd.Env = os.Environ()
-		out, err := cmd.Output()
-		if err != nil {
-			return ""
-		}
-		return strings.TrimSpace(string(out))
-	}
-
 	if GetDisplayProtocol() == "X11" {
-		if _, err := os.Stat("/usr/bin/xrandr"); err != nil {
-			return monitors
+		conn, err := xgb.NewConn()
+		if err != nil {
+			return nil
 		}
-		connections := strings.Split(runCommand("xrandr --query | grep -w \"connected\" | awk '{print $1}'"), "\n")
-		for i, con := range connections {
-			Xaxis := runCommand(fmt.Sprintf("xrandr --current | grep -m%d '*' | tail -n1 | uniq | awk '{print $1}' | cut -d 'x' -f1", i+1))
-			Yaxis := runCommand(fmt.Sprintf("xrandr --current | grep -m%d '*' | tail -n1 | uniq | awk '{print $1}' | cut -d 'x' -f2", i+1))
-			monitors = append(monitors, con+" ("+Xaxis+"x"+Yaxis+")")
+		err = xinerama.Init(conn)
+		if err != nil {
+			return nil
+		}
+		reply, _ := xinerama.QueryScreens(conn).Reply()
+		for _, screen := range reply.ScreenInfo {
+			monitors = append(monitors, strconv.Itoa(int(screen.Width))+"x"+strconv.Itoa(int(screen.Height)))
 		}
 	}
 	return monitors

@@ -74,7 +74,7 @@ func readConfig() {
 	}
 	// Show Dependency warning if enabled
 	if config.DependencyWarning {
-		dependencies := []string{"xhost", "xdpyinfo"}
+		var dependencies []string
 		var missing []string
 		for _, depend := range dependencies {
 			if _, err := os.Stat(path.Join("/usr/bin/", depend)); err != nil {
