@@ -336,7 +336,7 @@ func getMountedPartitions() []partition {
 	}
 
 	partlabels, err := os.ReadDir("/dev/disk/by-partlabel")
-	if err != nil {
+	if err != nil && !os.IsNotExist(err) {
 		return nil
 	}
 	labels := make(map[string]string)

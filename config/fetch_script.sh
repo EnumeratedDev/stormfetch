@@ -11,9 +11,14 @@ if [ ! -z "$MEM_TOTAL" ] && [ ! -z "$MEM_USED" ]; then echo -e "${C3}Memory: ${C
 for i in $(seq ${MOUNTED_PARTITIONS}); do
     device="PARTITION${i}_DEVICE"
     mountpoint="PARTITION${i}_MOUNTPOINT"
+    label="PARTITION${i}_LABEL"
     total="PARTITION${i}_TOTAL_SIZE"
     used="PARTITION${i}_USED_SIZE"
-    echo -e "${C3}${!mountpoint}: ${C4}${!used}/${!total}"
+    if [ -z "${!label}" ]; then
+      echo -e "${C3}Partition ${!mountpoint}: ${C4}${!used}/${!total}"
+    else
+      echo -e "${C3}Partition ${!label}: ${C4}${!used}/${!total}"
+    fi
   done
 if [ ! -z "$DISPLAY_PROTOCOL" ]; then
   echo -e "${C3}Display Protocol: ${C4}${DISPLAY_PROTOCOL}"
