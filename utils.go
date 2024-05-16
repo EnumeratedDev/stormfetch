@@ -2,11 +2,13 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"github.com/BurntSushi/xgb"
 	"github.com/BurntSushi/xgb/xinerama"
 	"github.com/jackmordaunt/ghw"
 	"github.com/mitchellh/go-ps"
 	"log"
+	"math"
 	"os"
 	"os/exec"
 	"path"
@@ -15,6 +17,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"syscall"
 )
 
 type DistroInfo struct {
@@ -27,7 +30,7 @@ func getDistroInfo() DistroInfo {
 	distroID := ""
 	var releaseMap = make(map[string]string)
 	if _, err := os.Stat("/etc/os-release"); err == nil {
-		releaseMap, err = readKeyValueFile("/etc/os-release")
+		releaseMap, err = ReadKeyValueFile("/etc/os-release")
 		if err != nil {
 			return DistroInfo{
 				ID:        "unknown",
@@ -316,13 +319,95 @@ func getMonitorResolution() []string {
 	return monitors
 }
 
-func stripAnsii(str string) string {
+type partition struct {
+	Device     string
+	MountPoint string
+	TotalSize  uint64
+	UsedSize   uint64
+	FreeSize   uint64
+}
+
+func getMountedPartitions() []partition {
+	entries, err := os.ReadDir("/dev/disk/by-partuuid")
+	if err != nil {
+		return nil
+	}
+
+	bytes, err := os.ReadFile("/proc/mounts")
+	if err != nil {
+		return nil
+	}
+	mountsRaw := strings.Split(string(bytes), "\n")
+	mounts := make(map[string]string)
+	for i := 0; i < len(mountsRaw); i++ {
+		split := strings.Split(mountsRaw[i], " ")
+		if len(split) <= 2 {
+			continue
+		}
+		mounts[split[0]] = split[1]
+	}
+
+	var partitions []partition
+	for _, entry := range entries {
+		link, err := filepath.EvalSymlinks(filepath.Join("/dev/disk/by-partuuid/", entry.Name()))
+		if err != nil {
+			continue
+		}
+		if _, ok := mounts[link]; !ok {
+			continue
+		}
+		p := partition{
+			link,
+			mounts[link],
+			0,
+			0,
+			0,
+		}
+		buf := new(syscall.Statfs_t)
+		err = syscall.Statfs(p.MountPoint, buf)
+		if err != nil {
+			log.Fatal(err)
+		}
+		totalBlocks := buf.Blocks
+		freeBlocks := buf.Bfree
+		usedBlocks := totalBlocks - freeBlocks
+		blockSize := uint64(buf.Bsize)
+
+		p.TotalSize = totalBlocks * blockSize
+		p.FreeSize = freeBlocks * blockSize
+		p.UsedSize = usedBlocks * blockSize
+
+		partitions = append(partitions, p)
+	}
+	return partitions
+}
+
+func FormatBytes(bytes uint64) string {
+	var suffixes [6]string
+	suffixes[0] = "B"
+	suffixes[1] = "KiB"
+	suffixes[2] = "MiB"
+	suffixes[3] = "GiB"
+	suffixes[4] = "TiB"
+	suffixes[5] = "PiB"
+
+	bf := float64(bytes)
+	for _, unit := range suffixes {
+		if math.Abs(bf) < 1024.0 {
+			return fmt.Sprintf("%3.1f %s", bf, unit)
+		}
+		bf /= 1024.0
+	}
+	return fmt.Sprintf("%.1fYiB", bf)
+}
+
+func StripAnsii(str string) string {
 	const ansi = "[\u001B\u009B][[\\]()#;?]*(?:(?:(?:[a-zA-Z\\d]*(?:;[a-zA-Z\\d]*)*)?\u0007)|(?:(?:\\d{1,4}(?:;\\d{0,4})*)?[\\dA-PRZcf-ntqry=><~]))"
 	var re = regexp.MustCompile(ansi)
 	return re.ReplaceAllString(str, "")
 }
 
-func readKeyValueFile(filepath string) (map[string]string, error) {
+func ReadKeyValueFile(filepath string) (map[string]string, error) {
 	ret := make(map[string]string)
 	if _, err := os.Stat(filepath); err != nil {
 		return nil, err

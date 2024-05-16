@@ -130,7 +130,7 @@ func readConfig() {
 		})
 	}
 	asciiSplit := strings.Split(ascii, "\n")
-	asciiNoColor := stripAnsii(ascii)
+	asciiNoColor := StripAnsii(ascii)
 	//Execute fetch script
 	cmd := exec.Command("/bin/bash", fetchScriptPath)
 	cmd.Dir = path.Dir(fetchScriptPath)
@@ -186,6 +186,17 @@ func SetupFetchEnv() []string {
 		env["MEM_TOTAL"] = strconv.Itoa(memory.MemTotal)
 		env["MEM_USED"] = strconv.Itoa(memory.MemTotal - memory.MemAvailable)
 		env["MEM_FREE"] = strconv.Itoa(memory.MemAvailable)
+	}
+	partitions := getMountedPartitions()
+	if len(partitions) != 0 {
+		env["MOUNTED_PARTITIONS"] = strconv.Itoa(len(partitions))
+		for i, part := range partitions {
+			env["PARTITION"+strconv.Itoa(i+1)+"_DEVICE"] = part.Device
+			env["PARTITION"+strconv.Itoa(i+1)+"_MOUNTPOINT"] = part.MountPoint
+			env["PARTITION"+strconv.Itoa(i+1)+"_TOTAL_SIZE"] = FormatBytes(part.TotalSize)
+			env["PARTITION"+strconv.Itoa(i+1)+"_USED_SIZE"] = FormatBytes(part.UsedSize)
+			env["PARTITION"+strconv.Itoa(i+1)+"_FREE_SIZE"] = FormatBytes(part.FreeSize)
+		}
 	}
 	env["DE_WM"] = GetDEWM()
 	env["USER_SHELL"] = GetShell()
