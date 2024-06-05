@@ -172,7 +172,7 @@ func readConfig() {
 		}
 		final += lastAsciiColor + line + "\n"
 	}
-	fmt.Println(final)
+	fmt.Println(final + "\033[0m")
 }
 
 func SetupFetchEnv() []string {
