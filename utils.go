@@ -267,7 +267,6 @@ func GetDEWM() string {
 		}
 		return strings.TrimSpace(string(out))
 	}
-
 	if processExists("plasmashell") {
 		return "KDE Plasma " + runCommand("plasmashell --version | awk '{print $2}'")
 	} else if processExists("gnome-session") {

@@ -152,20 +152,31 @@ func readConfig() {
 		}
 	}
 	final := ""
-	for lineIndex, line := range asciiSplit {
-		lineVisibleLength := len(strings.Split(asciiNoColor, "\n")[lineIndex])
-		lastAsciiColor := ""
-		if lineIndex != 0 {
-			r := regexp.MustCompile("\033[38;5;[0-9]+m")
-			matches := r.FindAllString(asciiSplit[lineIndex-1], -1)
-			if len(matches) != 0 {
-				lastAsciiColor = r.FindAllString(asciiSplit[lineIndex-1], -1)[len(matches)-1]
-			}
-		}
-		for i := lineVisibleLength; i < maxWidth+5; i++ {
+	y := len(asciiSplit)
+	if len(asciiSplit) < len(strings.Split(string(out), "\n")) {
+		y = len(strings.Split(string(out), "\n"))
+	}
+	for lineIndex := 0; lineIndex < y; lineIndex++ {
+		line := ""
+		for i := 0; i < maxWidth+5; i++ {
 			line = line + " "
 		}
-		asciiSplit[lineIndex] = lastAsciiColor + line
+		lastAsciiColor := ""
+		if lineIndex < len(asciiSplit) {
+			line = asciiSplit[lineIndex]
+			lineVisibleLength := len(strings.Split(asciiNoColor, "\n")[lineIndex])
+			if lineIndex != 0 {
+				r := regexp.MustCompile("\033[38;5;[0-9]+m")
+				matches := r.FindAllString(asciiSplit[lineIndex-1], -1)
+				if len(matches) != 0 {
+					lastAsciiColor = r.FindAllString(asciiSplit[lineIndex-1], -1)[len(matches)-1]
+				}
+			}
+			for i := lineVisibleLength; i < maxWidth+5; i++ {
+				line = line + " "
+			}
+			asciiSplit[lineIndex] = lastAsciiColor + line
+		}
 		str := string(out)
 		if lineIndex < len(strings.Split(str, "\n")) {
 			line = line + colorMap["C0"] + strings.Split(str, "\n")[lineIndex]
