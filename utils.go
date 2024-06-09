@@ -345,7 +345,6 @@ func getMountedPartitions() []partition {
 		}
 		labels[link] = entry.Name()
 	}
-
 	var partitions []partition
 	for _, entry := range mounts {
 		p := partition{
@@ -362,7 +361,7 @@ func getMountedPartitions() []partition {
 		buf := new(syscall.Statfs_t)
 		err = syscall.Statfs(p.MountPoint, buf)
 		if err != nil {
-			log.Fatal(err)
+			continue
 		}
 		totalBlocks := buf.Blocks
 		freeBlocks := buf.Bfree
