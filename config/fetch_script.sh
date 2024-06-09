@@ -6,7 +6,10 @@ echo -e "${C3}Kernel: ${C4}$(uname -s) $(uname -r)"
 echo -e "${C3}Packages: ${C4}$(get_packages)"
 echo -e "${C3}Shell: ${C4}${USER_SHELL}"
 if [ ! -z "$CPU_MODEL" ]; then echo -e "${C3}CPU: ${C4}${CPU_MODEL} (${CPU_THREADS} threads)"; fi
-if [ ! -z "$GPU_MODEL" ]; then echo -e "${C3}GPU: ${C4}${GPU_MODEL}"; fi
+for i in $(seq ${CONNECTED_GPUS}); do
+    gpu="GPU$i"
+    echo -e "${C3}GPU: ${C4}${!gpu}"
+  done
 if [ ! -z "$MEM_TOTAL" ] && [ ! -z "$MEM_USED" ]; then echo -e "${C3}Memory: ${C4}${MEM_USED} MiB / ${MEM_TOTAL} MiB"; fi
 for i in $(seq ${MOUNTED_PARTITIONS}); do
     device="PARTITION${i}_DEVICE"

@@ -34,3 +34,5 @@ run: build/stormfetch
 
 clean:
 	rm -r build/
+
+.PHONY: build

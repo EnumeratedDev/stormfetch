@@ -141,8 +141,15 @@ func SetupFetchEnv() []string {
 			env["MONITOR"+strconv.Itoa(i+1)] = monitor
 		}
 	}
-	if getGPUName() != "" {
-		env["GPU_MODEL"] = getGPUName()
+	gpus := getGPUNames()
+	if len(gpus) != 0 {
+		env["CONNECTED_GPUS"] = strconv.Itoa(len(gpus))
+		for i, gpu := range gpus {
+			if gpu == "" {
+				continue
+			}
+			env["GPU"+strconv.Itoa(i+1)] = gpu
+		}
 	}
 
 	var ret = make([]string, len(env))

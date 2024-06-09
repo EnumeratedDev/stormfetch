@@ -119,7 +119,8 @@ func getCPUThreads() int {
 	return int(cpu.TotalThreads)
 }
 
-func getGPUName() string {
+func getGPUNames() []string {
+	var ret []string
 	null, _ := os.Open(os.DevNull)
 	serr := os.Stderr
 	os.Stderr = null
@@ -127,14 +128,14 @@ func getGPUName() string {
 	defer null.Close()
 	os.Stderr = serr
 	if err != nil {
-		return ""
+		return nil
 	}
 	for _, graphics := range gpu.GraphicsCards {
 		if graphics.DeviceInfo != nil {
-			return graphics.DeviceInfo.Product.Name
+			ret = append(ret, graphics.DeviceInfo.Product.Name)
 		}
 	}
-	return ""
+	return ret
 }
 
 type Memory struct {
