@@ -183,7 +183,8 @@ func readConfig() {
 		}
 		final += lastAsciiColor + line + "\n"
 	}
-	fmt.Println(final + "\033[0m")
+	final = strings.TrimSpace(final)
+	fmt.Print(final + "\033[0m")
 }
 
 func SetupFetchEnv() []string {
