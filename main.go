@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	yaml "gopkg.in/yaml.v3"
+	"gopkg.in/yaml.v3"
 	"log"
 	"os"
 	"os/exec"
@@ -26,6 +26,7 @@ var config = StormfetchConfig{
 
 type StormfetchConfig struct {
 	Ascii             string `yaml:"distro_ascii"`
+	DistroName        string `yaml:"distro_name"`
 	FetchScript       string `yaml:"fetch_script"`
 	AnsiiColors       []int  `yaml:"ansii_colors"`
 	ForceConfigAnsii  bool   `yaml:"force_config_ansii"`
@@ -80,6 +81,7 @@ func readConfig() {
 
 func readFlags() {
 	flag.StringVar(&config.Ascii, "ascii", config.Ascii, "help message for flagname")
+	flag.StringVar(&config.DistroName, "distro-name", config.DistroName, "help message for flagname")
 	flag.Parse()
 }
 

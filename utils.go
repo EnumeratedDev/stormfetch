@@ -28,41 +28,32 @@ type DistroInfo struct {
 }
 
 func getDistroInfo() DistroInfo {
-	distroID := ""
+	info := DistroInfo{
+		ID:        "unknown",
+		LongName:  "Unknown",
+		ShortName: "Unknown",
+	}
+	if strings.TrimSpace(config.DistroName) != "" {
+		info.LongName = strings.TrimSpace(config.DistroName)
+		info.ShortName = strings.TrimSpace(config.DistroName)
+	}
 	var releaseMap = make(map[string]string)
 	if _, err := os.Stat("/etc/os-release"); err == nil {
 		releaseMap, err = ReadKeyValueFile("/etc/os-release")
 		if err != nil {
-			return DistroInfo{
-				ID:        "unknown",
-				LongName:  "Unknown",
-				ShortName: "Unknown",
-			}
-		}
-		if value, ok := releaseMap["ID"]; ok {
-			distroID = value
+			return info
 		}
 	}
-
-	switch distroID {
-	default:
-		if id, ok := releaseMap["ID"]; ok {
-			if longName, ok := releaseMap["PRETTY_NAME"]; ok {
-				if shortName, ok := releaseMap["NAME"]; ok {
-					return DistroInfo{
-						ID:        id,
-						LongName:  longName,
-						ShortName: shortName,
-					}
-				}
-			}
-		}
-		return DistroInfo{
-			ID:        "unknown",
-			LongName:  "Unknown",
-			ShortName: "Unknown",
-		}
+	if id, ok := releaseMap["ID"]; ok {
+		info.ID = id
 	}
+	if longName, ok := releaseMap["PRETTY_NAME"]; ok && info.LongName == "Unknown" {
+		info.LongName = longName
+	}
+	if shortName, ok := releaseMap["NAME"]; ok && info.ShortName == "Unknown" {
+		info.ShortName = shortName
+	}
+	return info
 }
 
 func getDistroAsciiArt() string {
