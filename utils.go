@@ -130,7 +130,10 @@ func getGPUNames() []string {
 	if err != nil {
 		return nil
 	}
-	for _, graphics := range gpu.GraphicsCards {
+	for i, graphics := range gpu.GraphicsCards {
+		if slices.Contains(config.HiddenGPUS, i+1) {
+			continue
+		}
 		if graphics.DeviceInfo != nil {
 			ret = append(ret, graphics.DeviceInfo.Product.Name)
 		}

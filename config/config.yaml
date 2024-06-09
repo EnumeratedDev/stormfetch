@@ -3,3 +3,4 @@ fetch_script: auto
 ansii_colors: []
 force_config_ansii: false
 dependency_warning: true
+hidden_gpus: []

@@ -22,6 +22,7 @@ var config = StormfetchConfig{
 	AnsiiColors:       make([]int, 0),
 	ForceConfigAnsii:  false,
 	DependencyWarning: true,
+	HiddenGPUS:        make([]int, 0),
 }
 
 type StormfetchConfig struct {
@@ -31,6 +32,7 @@ type StormfetchConfig struct {
 	AnsiiColors       []int  `yaml:"ansii_colors"`
 	ForceConfigAnsii  bool   `yaml:"force_config_ansii"`
 	DependencyWarning bool   `yaml:"dependency_warning"`
+	HiddenGPUS        []int  `yaml:"hidden_gpus"`
 }
 
 func main() {
