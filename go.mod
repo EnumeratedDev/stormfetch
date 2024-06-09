@@ -14,6 +14,7 @@ require (
 	github.com/jackmordaunt/pcidb v1.0.1 // indirect
 	github.com/jackmordaunt/wmi v1.2.4 // indirect
 	github.com/kr/pretty v0.1.0 // indirect
+	github.com/moby/sys/mountinfo v0.7.1 // indirect
 	golang.org/x/sys v0.3.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 )

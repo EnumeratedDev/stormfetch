@@ -7,6 +7,7 @@ import (
 	"github.com/BurntSushi/xgb/xinerama"
 	"github.com/jackmordaunt/ghw"
 	"github.com/mitchellh/go-ps"
+	"github.com/moby/sys/mountinfo"
 	"log"
 	"math"
 	"os"
@@ -329,11 +330,9 @@ type partition struct {
 }
 
 func getMountedPartitions() []partition {
-	partuuids, err := os.ReadDir("/dev/disk/by-partuuid")
-	if err != nil {
-		return nil
-	}
-
+	mounts, err := mountinfo.GetMounts(func(info *mountinfo.Info) (skip, stop bool) {
+		return !strings.HasPrefix(info.Source, "/dev/"), false
+	})
 	partlabels, err := os.ReadDir("/dev/disk/by-partlabel")
 	if err != nil && !os.IsNotExist(err) {
 		return nil
@@ -347,40 +346,17 @@ func getMountedPartitions() []partition {
 		labels[link] = entry.Name()
 	}
 
-	bytes, err := os.ReadFile("/proc/mounts")
-	if err != nil {
-		return nil
-	}
-
-	mountsRaw := strings.Split(string(bytes), "\n")
-	mounts := make(map[string]string)
-
-	for i := 0; i < len(mountsRaw); i++ {
-		split := strings.Split(mountsRaw[i], " ")
-		if len(split) <= 2 {
-			continue
-		}
-		mounts[split[0]] = split[1]
-	}
-
 	var partitions []partition
-	for _, entry := range partuuids {
-		link, err := filepath.EvalSymlinks(filepath.Join("/dev/disk/by-partuuid/", entry.Name()))
-		if err != nil {
-			continue
-		}
-		if _, ok := mounts[link]; !ok {
-			continue
-		}
+	for _, entry := range mounts {
 		p := partition{
-			link,
-			mounts[link],
+			entry.Source,
+			entry.Mountpoint,
 			"",
 			0,
 			0,
 			0,
 		}
-		if value, ok := labels[link]; ok {
+		if value, ok := labels[entry.Source]; ok {
 			p.Label = value
 		}
 		buf := new(syscall.Statfs_t)
