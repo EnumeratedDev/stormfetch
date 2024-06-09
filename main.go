@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	yaml "gopkg.in/yaml.v3"
 	"log"
@@ -33,6 +34,9 @@ type StormfetchConfig struct {
 
 func main() {
 	readConfig()
+	readFlags()
+	checkDependencies()
+	runStormfetch()
 }
 
 func readConfig() {
@@ -72,6 +76,14 @@ func readConfig() {
 	} else {
 		log.Fatalf("Fetch script file not found: %s", err.Error())
 	}
+}
+
+func readFlags() {
+	flag.StringVar(&config.Ascii, "ascii", config.Ascii, "help message for flagname")
+	flag.Parse()
+}
+
+func checkDependencies() {
 	// Show Dependency warning if enabled
 	if config.DependencyWarning {
 		var dependencies []string
@@ -89,6 +101,58 @@ func readConfig() {
 			fmt.Println("You can disable this warning through your stormfetch config")
 		}
 	}
+}
+
+func SetupFetchEnv() []string {
+	var env = make(map[string]string)
+	env["DISTRO_LONG_NAME"] = getDistroInfo().LongName
+	env["DISTRO_SHORT_NAME"] = getDistroInfo().ShortName
+	env["CPU_MODEL"] = getCPUName()
+	env["CPU_THREADS"] = strconv.Itoa(getCPUThreads())
+	memory := GetMemoryInfo()
+	if memory != nil {
+		env["MEM_TOTAL"] = strconv.Itoa(memory.MemTotal)
+		env["MEM_USED"] = strconv.Itoa(memory.MemTotal - memory.MemAvailable)
+		env["MEM_FREE"] = strconv.Itoa(memory.MemAvailable)
+	}
+	partitions := getMountedPartitions()
+	if len(partitions) != 0 {
+		env["MOUNTED_PARTITIONS"] = strconv.Itoa(len(partitions))
+		for i, part := range partitions {
+			env["PARTITION"+strconv.Itoa(i+1)+"_DEVICE"] = part.Device
+			env["PARTITION"+strconv.Itoa(i+1)+"_MOUNTPOINT"] = part.MountPoint
+			if part.Label != "" {
+				env["PARTITION"+strconv.Itoa(i+1)+"_LABEL"] = part.Label
+			}
+			env["PARTITION"+strconv.Itoa(i+1)+"_TOTAL_SIZE"] = FormatBytes(part.TotalSize)
+			env["PARTITION"+strconv.Itoa(i+1)+"_USED_SIZE"] = FormatBytes(part.UsedSize)
+			env["PARTITION"+strconv.Itoa(i+1)+"_FREE_SIZE"] = FormatBytes(part.FreeSize)
+		}
+	}
+	env["DE_WM"] = GetDEWM()
+	env["USER_SHELL"] = GetShell()
+	env["DISPLAY_PROTOCOL"] = GetDisplayProtocol()
+	monitors := getMonitorResolution()
+	if len(monitors) != 0 {
+		env["CONNECTED_MONITORS"] = strconv.Itoa(len(monitors))
+		for i, monitor := range monitors {
+			env["MONITOR"+strconv.Itoa(i+1)] = monitor
+		}
+	}
+	if getGPUName() != "" {
+		env["GPU_MODEL"] = getGPUName()
+	}
+
+	var ret = make([]string, len(env))
+	i := 0
+	for key, value := range env {
+		ret[i] = fmt.Sprintf("%s=%s", key, value)
+		i++
+	}
+	return ret
+}
+
+func runStormfetch() {
 	// Fetch ascii art and apply colors
 	colorMap := make(map[string]string)
 	colorMap["C0"] = "\033[0m"
@@ -183,55 +247,6 @@ func readConfig() {
 		}
 		final += lastAsciiColor + line + "\n"
 	}
-	final = strings.TrimSpace(final)
-	fmt.Print(final + "\033[0m")
-}
-
-func SetupFetchEnv() []string {
-	var env = make(map[string]string)
-	env["DISTRO_LONG_NAME"] = getDistroInfo().LongName
-	env["DISTRO_SHORT_NAME"] = getDistroInfo().ShortName
-	env["CPU_MODEL"] = getCPUName()
-	env["CPU_THREADS"] = strconv.Itoa(getCPUThreads())
-	memory := GetMemoryInfo()
-	if memory != nil {
-		env["MEM_TOTAL"] = strconv.Itoa(memory.MemTotal)
-		env["MEM_USED"] = strconv.Itoa(memory.MemTotal - memory.MemAvailable)
-		env["MEM_FREE"] = strconv.Itoa(memory.MemAvailable)
-	}
-	partitions := getMountedPartitions()
-	if len(partitions) != 0 {
-		env["MOUNTED_PARTITIONS"] = strconv.Itoa(len(partitions))
-		for i, part := range partitions {
-			env["PARTITION"+strconv.Itoa(i+1)+"_DEVICE"] = part.Device
-			env["PARTITION"+strconv.Itoa(i+1)+"_MOUNTPOINT"] = part.MountPoint
-			if part.Label != "" {
-				env["PARTITION"+strconv.Itoa(i+1)+"_LABEL"] = part.Label
-			}
-			env["PARTITION"+strconv.Itoa(i+1)+"_TOTAL_SIZE"] = FormatBytes(part.TotalSize)
-			env["PARTITION"+strconv.Itoa(i+1)+"_USED_SIZE"] = FormatBytes(part.UsedSize)
-			env["PARTITION"+strconv.Itoa(i+1)+"_FREE_SIZE"] = FormatBytes(part.FreeSize)
-		}
-	}
-	env["DE_WM"] = GetDEWM()
-	env["USER_SHELL"] = GetShell()
-	env["DISPLAY_PROTOCOL"] = GetDisplayProtocol()
-	monitors := getMonitorResolution()
-	if len(monitors) != 0 {
-		env["CONNECTED_MONITORS"] = strconv.Itoa(len(monitors))
-		for i, monitor := range monitors {
-			env["MONITOR"+strconv.Itoa(i+1)] = monitor
-		}
-	}
-	if getGPUName() != "" {
-		env["GPU_MODEL"] = getGPUName()
-	}
-
-	var ret = make([]string, len(env))
-	i := 0
-	for key, value := range env {
-		ret[i] = fmt.Sprintf("%s=%s", key, value)
-		i++
-	}
-	return ret
+	final = strings.TrimRight(final, "\n\t ")
+	fmt.Println(final + "\033[0m")
 }

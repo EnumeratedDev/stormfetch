@@ -103,7 +103,7 @@ func getDistroAsciiArt() string {
 		if err != nil {
 			return defaultAscii
 		}
-		return string(bytes)
+		return strings.TrimRight(string(bytes), "\n\t ")
 	} else {
 		return defaultAscii
 	}
