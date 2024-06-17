@@ -20,11 +20,14 @@ get_packages() {
     if command_exists rpm; then
         ARRAY+=("$(rpm -qa | wc -l) (rpm)")
     fi
+    if command_exists pacman; then
+        ARRAY+=("$(xbps-query -l | wc -l) (xbps)")
+    fi
     if command_exists bpm; then
         ARRAY+=("$(bpm list -n) (bpm)")
     fi
     if command_exists emerge; then
-        ARRAY+=("$(ls -l /var/db/pkg/ | wc -l) (emerge)")
+        ARRAY+=("$(ls -l /var/db/pkg/* | wc -l) (emerge)")
     fi
     if command_exists flatpak; then
         ARRAY+=("$(flatpak list | wc -l) (flatpak)")
