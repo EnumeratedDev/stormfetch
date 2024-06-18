@@ -20,7 +20,7 @@ get_packages() {
     if command_exists rpm; then
         ARRAY+=("$(rpm -qa | wc -l) (rpm)")
     fi
-    if command_exists pacman; then
+    if command_exists xbps-query; then
         ARRAY+=("$(xbps-query -l | wc -l) (xbps)")
     fi
     if command_exists bpm; then
