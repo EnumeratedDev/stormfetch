@@ -319,6 +319,7 @@ type partition struct {
 	Device     string
 	MountPoint string
 	Label      string
+	Type       string
 	TotalSize  uint64
 	UsedSize   uint64
 	FreeSize   uint64
@@ -328,6 +329,10 @@ func getMountedPartitions() []partition {
 	mounts, err := mountinfo.GetMounts(func(info *mountinfo.Info) (skip, stop bool) {
 		return !strings.HasPrefix(info.Source, "/dev/"), false
 	})
+	fslabels, err := os.ReadDir("/dev/disk/by-label")
+	if err != nil && !os.IsNotExist(err) {
+		return nil
+	}
 	partlabels, err := os.ReadDir("/dev/disk/by-partlabel")
 	if err != nil && !os.IsNotExist(err) {
 		return nil
@@ -340,15 +345,32 @@ func getMountedPartitions() []partition {
 		}
 		labels[link] = entry.Name()
 	}
+	for _, entry := range fslabels {
+		link, err := filepath.EvalSymlinks(filepath.Join("/dev/disk/by-label/", entry.Name()))
+		if err != nil {
+			continue
+		}
+		labels[link] = entry.Name()
+	}
 	var partitions []partition
 	for _, entry := range mounts {
 		p := partition{
 			entry.Source,
 			entry.Mountpoint,
 			"",
+			entry.FSType,
 			0,
 			0,
 			0,
+		}
+		skip := false
+		for _, part := range partitions {
+			if part.Device == p.Device {
+				skip = true
+			}
+		}
+		if skip {
+			continue
 		}
 		if value, ok := labels[entry.Source]; ok {
 			p.Label = value

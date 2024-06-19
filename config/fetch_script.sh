@@ -15,12 +15,21 @@ for i in $(seq ${MOUNTED_PARTITIONS}); do
     device="PARTITION${i}_DEVICE"
     mountpoint="PARTITION${i}_MOUNTPOINT"
     label="PARTITION${i}_LABEL"
+    type="PARTITION${i}_TYPE"
     total="PARTITION${i}_TOTAL_SIZE"
     used="PARTITION${i}_USED_SIZE"
-    if [ -z "${!label}" ]; then
-      echo -e "${C3}Partition ${!mountpoint}: ${C4}${!used}/${!total}"
+    if [ -z "${!type}" ]; then
+      if [ -z "${!label}" ]; then
+        echo -e "${C3}Partition ${!mountpoint}: ${C4}${!used}/${!total}"
+      else
+        echo -e "${C3}Partition ${!label}: ${C4}${!used}/${!total}"
+      fi
     else
-      echo -e "${C3}Partition ${!label}: ${C4}${!used}/${!total}"
+      if [ -z "${!label}" ]; then
+              echo -e "${C3}Partition ${!mountpoint} (${!type}): ${C4}${!used}/${!total}"
+            else
+              echo -e "${C3}Partition ${!label} (${!type}): ${C4}${!used}/${!total}"
+            fi
     fi
   done
 if [ ! -z "$DISPLAY_PROTOCOL" ]; then

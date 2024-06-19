@@ -22,6 +22,7 @@ var config = StormfetchConfig{
 	AnsiiColors:       make([]int, 0),
 	ForceConfigAnsii:  false,
 	DependencyWarning: true,
+	ShowFSType:        false,
 	HiddenGPUS:        make([]int, 0),
 }
 
@@ -32,6 +33,7 @@ type StormfetchConfig struct {
 	AnsiiColors       []int  `yaml:"ansii_colors"`
 	ForceConfigAnsii  bool   `yaml:"force_config_ansii"`
 	DependencyWarning bool   `yaml:"dependency_warning"`
+	ShowFSType        bool   `yaml:"show_fs_type"`
 	HiddenGPUS        []int  `yaml:"hidden_gpus"`
 }
 
@@ -127,6 +129,9 @@ func SetupFetchEnv() []string {
 			env["PARTITION"+strconv.Itoa(i+1)+"_MOUNTPOINT"] = part.MountPoint
 			if part.Label != "" {
 				env["PARTITION"+strconv.Itoa(i+1)+"_LABEL"] = part.Label
+			}
+			if part.Type != "" && config.ShowFSType {
+				env["PARTITION"+strconv.Itoa(i+1)+"_TYPE"] = part.Type
 			}
 			env["PARTITION"+strconv.Itoa(i+1)+"_TOTAL_SIZE"] = FormatBytes(part.TotalSize)
 			env["PARTITION"+strconv.Itoa(i+1)+"_USED_SIZE"] = FormatBytes(part.UsedSize)
