@@ -20,7 +20,7 @@ Stormfetch is still in beta, so distro compatibility is limited. If you would li
 - Download `make` from your package manager
 - Run the following command to compile the project
 ```
-make
+make SYSCONFDIR=/etc
 ```
 - Run the following command to install stormfetch into your system. You may also append a DESTDIR variable at the end of this line if you wish to install in a different location
 ```

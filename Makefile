@@ -13,7 +13,7 @@ endif
 
 build:
 	mkdir -p build
-	$(GO) build -ldflags "-w" -o build/stormfetch stormfetch
+	$(GO) build -ldflags "-w -X 'main.systemConfigDir=$(SYSCONFDIR)'" -o build/stormfetch stormfetch
 
 install: build/stormfetch config/
 	mkdir -p $(DESTDIR)$(BINDIR)

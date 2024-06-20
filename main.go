@@ -13,6 +13,8 @@ import (
 	"strings"
 )
 
+var systemConfigDir = "/etc/"
+
 var configPath = ""
 var fetchScriptPath = ""
 
@@ -46,12 +48,12 @@ func main() {
 
 func readConfig() {
 	// Get home directory
-	configDir, _ := os.UserConfigDir()
+	userConfigDir, _ := os.UserConfigDir()
 	// Find valid config directory
-	if _, err := os.Stat(path.Join(configDir, "stormfetch/config.yaml")); err == nil {
-		configPath = path.Join(configDir, "stormfetch/config.yaml")
-	} else if _, err := os.Stat("/etc/stormfetch/config.yaml"); err == nil {
-		configPath = "/etc/stormfetch/config.yaml"
+	if _, err := os.Stat(path.Join(userConfigDir, "stormfetch/config.yaml")); err == nil {
+		configPath = path.Join(userConfigDir, "stormfetch/config.yaml")
+	} else if _, err := os.Stat(path.Join(systemConfigDir, "stormfetch/config.yaml")); err == nil {
+		configPath = path.Join(systemConfigDir, "stormfetch/config.yaml")
 	} else {
 		log.Fatalf("Config file not found: %s", err.Error())
 	}
@@ -74,10 +76,10 @@ func readConfig() {
 			log.Fatalf("Fetch script path points to a directory")
 		}
 	}
-	if _, err := os.Stat(path.Join(configDir, "stormfetch/fetch_script.sh")); err == nil {
-		fetchScriptPath = path.Join(configDir, "stormfetch/fetch_script.sh")
-	} else if _, err := os.Stat("/etc/stormfetch/fetch_script.sh"); err == nil {
-		fetchScriptPath = "/etc/stormfetch/fetch_script.sh"
+	if _, err := os.Stat(path.Join(userConfigDir, "stormfetch/fetch_script.sh")); err == nil {
+		fetchScriptPath = path.Join(userConfigDir, "stormfetch/fetch_script.sh")
+	} else if _, err := os.Stat(path.Join(systemConfigDir, "stormfetch/fetch_script.sh")); err == nil {
+		fetchScriptPath = path.Join(systemConfigDir, "stormfetch/fetch_script.sh")
 	} else {
 		log.Fatalf("Fetch script file not found: %s", err.Error())
 	}
