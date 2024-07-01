@@ -24,7 +24,7 @@ get_packages() {
         ARRAY+=("$(xbps-query -l | wc -l) (xbps)")
     fi
     if command_exists bpm; then
-        ARRAY+=("$(bpm list -n) (bpm)")
+        ARRAY+=("$(bpm list -c) (bpm)")
     fi
     if command_exists emerge; then
         ARRAY+=("$(ls -l /var/db/pkg/* | wc -l) (emerge)")
