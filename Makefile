@@ -8,7 +8,7 @@ ifeq ($(SYSCONFDIR),)
     SYSCONFDIR := $(PREFIX)/etc
 endif
 ifeq ($(GO),)
-    GO := /usr/bin/go
+    GO := $(shell type -a -P go | head -n 1)
 endif
 
 build:
