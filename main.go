@@ -11,12 +11,15 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 var systemConfigDir = "/etc/"
 
 var configPath = ""
 var fetchScriptPath = ""
+
+var TimeTaken = false
 
 var config = StormfetchConfig{
 	Ascii:             "auto",
@@ -86,8 +89,9 @@ func readConfig() {
 }
 
 func readFlags() {
-	flag.StringVar(&config.Ascii, "ascii", config.Ascii, "help message for flagname")
-	flag.StringVar(&config.DistroName, "distro-name", config.DistroName, "help message for flagname")
+	flag.StringVar(&config.Ascii, "ascii", config.Ascii, "Set distro ascii")
+	flag.StringVar(&config.DistroName, "distro-name", config.DistroName, "Set distro name")
+	flag.BoolVar(&TimeTaken, "time-taken", false, "Show time taken for fetched information")
 	flag.Parse()
 }
 
@@ -111,19 +115,37 @@ func checkDependencies() {
 	}
 }
 
-func SetupFetchEnv() []string {
+func SetupFetchEnv(showTimeTaken bool) []string {
 	var env = make(map[string]string)
-	env["DISTRO_LONG_NAME"] = getDistroInfo().LongName
-	env["DISTRO_SHORT_NAME"] = getDistroInfo().ShortName
-	env["CPU_MODEL"] = getCPUName()
-	env["CPU_THREADS"] = strconv.Itoa(getCPUThreads())
+	setVariable := func(key string, setter func() string) {
+		start := time.Now().UnixMilli()
+		env[key] = setter()
+		end := time.Now().UnixMilli()
+		if showTimeTaken {
+			fmt.Println(fmt.Sprintf("Setting '%s' took %d milliseconds", key, end-start))
+		}
+	}
+	setVariable("DISTRO_LONG_NAME", func() string { return getDistroInfo().LongName })
+	setVariable("DISTRO_SHORT_NAME", func() string { return getDistroInfo().ShortName })
+	setVariable("CPU_MODEL", func() string { return getCPUName() })
+	setVariable("CPU_THREADS", func() string { return strconv.Itoa(getCPUThreads()) })
+	start := time.Now().UnixMilli()
 	memory := GetMemoryInfo()
+	end := time.Now().UnixMilli()
+	if showTimeTaken {
+		fmt.Println(fmt.Sprintf("Setting '%s' took %d milliseconds", "MEM_*", end-start))
+	}
 	if memory != nil {
 		env["MEM_TOTAL"] = strconv.Itoa(memory.MemTotal)
 		env["MEM_USED"] = strconv.Itoa(memory.MemTotal - memory.MemAvailable)
 		env["MEM_FREE"] = strconv.Itoa(memory.MemAvailable)
 	}
+	start = time.Now().UnixMilli()
 	partitions := getMountedPartitions()
+	end = time.Now().UnixMilli()
+	if showTimeTaken {
+		fmt.Println(fmt.Sprintf("Setting '%s' took %d milliseconds", "PARTITION_*", end-start))
+	}
 	if len(partitions) != 0 {
 		env["MOUNTED_PARTITIONS"] = strconv.Itoa(len(partitions))
 		for i, part := range partitions {
@@ -140,18 +162,28 @@ func SetupFetchEnv() []string {
 			env["PARTITION"+strconv.Itoa(i+1)+"_FREE_SIZE"] = FormatBytes(part.FreeSize)
 		}
 	}
-	env["DE_WM"] = GetDEWM()
-	env["USER_SHELL"] = GetShell()
-	env["DISPLAY_PROTOCOL"] = GetDisplayProtocol()
-	env["LIBC"] = GetLibc()
+	setVariable("DE_WM", func() string { return GetDEWM() })
+	setVariable("USER_SHELL", func() string { return GetShell() })
+	setVariable("DISPLAY_PROTOCOL", func() string { return GetDisplayProtocol() })
+	setVariable("LIBC", func() string { return GetLibc() })
+	start = time.Now().UnixMilli()
 	monitors := getMonitorResolution()
+	end = time.Now().UnixMilli()
+	if showTimeTaken {
+		fmt.Println(fmt.Sprintf("Setting '%s' took %d milliseconds", "MONITOR_*", end-start))
+	}
 	if len(monitors) != 0 {
 		env["CONNECTED_MONITORS"] = strconv.Itoa(len(monitors))
 		for i, monitor := range monitors {
 			env["MONITOR"+strconv.Itoa(i+1)] = monitor
 		}
 	}
+	start = time.Now().UnixMilli()
 	gpus := getGPUNames()
+	end = time.Now().UnixMilli()
+	if showTimeTaken {
+		fmt.Println(fmt.Sprintf("Setting '%s' took %d milliseconds", "GPU_*", end-start))
+	}
 	if len(gpus) != 0 {
 		env["CONNECTED_GPUS"] = strconv.Itoa(len(gpus))
 		for i, gpu := range gpus {
@@ -218,7 +250,7 @@ func runStormfetch() {
 	cmd := exec.Command("/bin/bash", fetchScriptPath)
 	cmd.Dir = path.Dir(fetchScriptPath)
 	cmd.Env = os.Environ()
-	cmd.Env = append(cmd.Env, SetupFetchEnv()...)
+	cmd.Env = append(cmd.Env, SetupFetchEnv(TimeTaken)...)
 	cmd.Env = append(cmd.Env, "C0=\033[0m")
 	for key, value := range colorMap {
 		cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", key, value))

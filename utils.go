@@ -121,22 +121,17 @@ func getCPUThreads() int {
 
 func getGPUNames() []string {
 	var ret []string
-	null, _ := os.Open(os.DevNull)
-	serr := os.Stderr
-	os.Stderr = null
-	gpu, err := ghw.GPU()
-	defer null.Close()
-	os.Stderr = serr
+	cmd := exec.Command("/bin/bash", "-c", "lspci -v -m | grep 'VGA' -A6 | grep '^Device:' | sed 's/^Device://' | awk '{$1=$1};1'")
+	bytes, err := cmd.Output()
 	if err != nil {
 		return nil
 	}
-	for i, graphics := range gpu.GraphicsCards {
-		if slices.Contains(config.HiddenGPUS, i+1) {
+	for _, name := range strings.Split(string(bytes), "\n") {
+		name = strings.TrimSpace(name)
+		if name == "" {
 			continue
 		}
-		if graphics.DeviceInfo != nil {
-			ret = append(ret, graphics.DeviceInfo.Product.Name)
-		}
+		ret = append(ret, name)
 	}
 	return ret
 }
