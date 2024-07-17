@@ -5,6 +5,7 @@ echo -e "${C3}Hostname: ${C4}$(cat /etc/hostname)"
 echo -e "${C3}Kernel: ${C4}$(uname -s) $(uname -r)"
 echo -e "${C3}Packages: ${C4}$(get_packages)"
 echo -e "${C3}Shell: ${C4}${USER_SHELL}"
+echo -e "${C3}Libc: ${C4}${LIBC}"
 if [ ! -z "$CPU_MODEL" ]; then echo -e "${C3}CPU: ${C4}${CPU_MODEL} (${CPU_THREADS} threads)"; fi
 for i in $(seq ${CONNECTED_GPUS}); do
     gpu="GPU$i"

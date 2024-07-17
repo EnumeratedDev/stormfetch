@@ -143,6 +143,7 @@ func SetupFetchEnv() []string {
 	env["DE_WM"] = GetDEWM()
 	env["USER_SHELL"] = GetShell()
 	env["DISPLAY_PROTOCOL"] = GetDisplayProtocol()
+	env["LIBC"] = GetLibc()
 	monitors := getMonitorResolution()
 	if len(monitors) != 0 {
 		env["CONNECTED_MONITORS"] = strconv.Itoa(len(monitors))

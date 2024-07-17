@@ -394,6 +394,24 @@ func getMountedPartitions() []partition {
 	return partitions
 }
 
+func GetLibc() string {
+	cmd := exec.Command("/bin/bash", "-c", "find /usr/lib64/ -maxdepth 1 -name 'ld-*' | grep musl")
+	if err := cmd.Run(); err != nil {
+		cmd = exec.Command("/bin/bash", "-c", "ldd --version | head -1 | cut -d' ' -f4")
+		bytes, err := cmd.Output()
+		if err != nil {
+			return "Glibc"
+		}
+		return "Glibc " + strings.TrimSpace(string(bytes))
+	}
+	cmd = exec.Command("/bin/bash", "-c", "ldd 2>&1 | grep 'Version' | cut -d' ' -f2")
+	bytes, err := cmd.Output()
+	if err != nil {
+		return "Musl"
+	}
+	return "Musl " + strings.TrimSpace(string(bytes))
+}
+
 func FormatBytes(bytes uint64) string {
 	var suffixes [6]string
 	suffixes[0] = "B"
