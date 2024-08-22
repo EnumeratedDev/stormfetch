@@ -226,6 +226,8 @@ func GetShell() string {
 		return "Zsh " + runCommand("$SHELL --version | awk '{print $2}'")
 	case "fish":
 		return "Fish " + runCommand("$SHELL --version | awk '{print $3}'")
+	case "nu":
+		return "Nushell " + runCommand("$SHELL --version")
 	default:
 		return "Unknown"
 	}
