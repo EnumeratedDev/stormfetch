@@ -391,6 +391,37 @@ func getMountedPartitions() []partition {
 	return partitions
 }
 
+func GetInitSystem() string {
+	runCommand := func(command string) string {
+		cmd := exec.Command("/bin/bash", "-c", command)
+		workdir, err := os.Getwd()
+		if err != nil {
+			return ""
+		}
+		cmd.Dir = workdir
+		cmd.Env = os.Environ()
+		out, err := cmd.Output()
+		if err != nil {
+			return ""
+		}
+		return strings.TrimSpace(string(out))
+	}
+
+	link, err := os.Readlink("/sbin/init")
+	if err != nil {
+		return "Unknown"
+	}
+	if path.Base(link) == "systemd" {
+		return "Systemd " + runCommand("systemctl --version | head -1 | awk '{print $2}'")
+	} else if path.Base(link) == "openrc-init" {
+		return "OpenRC " + runCommand("openrc --version | awk '{print $3}'")
+	} else if path.Base(link) == "runit-init" {
+		return "Runit"
+	} else {
+		return "Unknown"
+	}
+}
+
 func GetLibc() string {
 	cmd := exec.Command("/bin/bash", "-c", "find /usr/lib64/ -maxdepth 1 -name 'ld-*' | grep musl")
 	if err := cmd.Run(); err != nil {

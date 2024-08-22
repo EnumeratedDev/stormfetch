@@ -166,6 +166,7 @@ func SetupFetchEnv(showTimeTaken bool) []string {
 	setVariable("USER_SHELL", func() string { return GetShell() })
 	setVariable("DISPLAY_PROTOCOL", func() string { return GetDisplayProtocol() })
 	setVariable("LIBC", func() string { return GetLibc() })
+	setVariable("INIT_SYSTEM", func() string { return GetInitSystem() })
 	start = time.Now().UnixMilli()
 	monitors := getMonitorResolution()
 	end = time.Now().UnixMilli()
