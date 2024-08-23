@@ -34,6 +34,7 @@ for i in $(seq ${MOUNTED_PARTITIONS}); do
             fi
     fi
   done
+  echo -e "${C3}Local IPv4 Address: ${C4}${LOCAL_IPV4}"
 if [ ! -z "$DISPLAY_PROTOCOL" ]; then
   echo -e "${C3}Display Protocol: ${C4}${DISPLAY_PROTOCOL}"
   for i in $(seq ${CONNECTED_MONITORS}); do
