@@ -10,6 +10,7 @@ require (
 )
 
 require (
+	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20240506104042-037f3cc74f2a // indirect
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/jackmordaunt/pcidb v1.0.1 // indirect
 	github.com/jackmordaunt/wmi v1.2.4 // indirect

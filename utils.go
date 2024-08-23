@@ -3,8 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/BurntSushi/xgb"
-	"github.com/BurntSushi/xgb/xinerama"
+	"github.com/go-gl/glfw/v3.3/glfw"
 	"github.com/jackmordaunt/ghw"
 	"github.com/mitchellh/go-ps"
 	"github.com/moby/sys/mountinfo"
@@ -295,20 +294,16 @@ func GetDisplayProtocol() string {
 
 func getMonitorResolution() []string {
 	var monitors []string
-	if GetDisplayProtocol() == "X11" {
-		conn, err := xgb.NewConn()
+	if GetDisplayProtocol() != "" {
+		err := glfw.Init()
 		if err != nil {
-			return nil
+			panic(err)
 		}
-		err = xinerama.Init(conn)
-		if err != nil {
-			return nil
+		for _, monitor := range glfw.GetMonitors() {
+			mode := monitor.GetVideoMode()
+			monitors = append(monitors, fmt.Sprintf("%dx%d %dHz", mode.Width, mode.Height, mode.RefreshRate))
 		}
-		reply, _ := xinerama.QueryScreens(conn).Reply()
-		conn.Close()
-		for _, screen := range reply.ScreenInfo {
-			monitors = append(monitors, strconv.Itoa(int(screen.Width))+"x"+strconv.Itoa(int(screen.Height)))
-		}
+		defer glfw.Terminate()
 	}
 	return monitors
 }
