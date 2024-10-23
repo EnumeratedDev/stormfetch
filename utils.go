@@ -272,10 +272,18 @@ func GetDEWM() string {
 		return "MATE " + runCommand("mate-about --version | awk '{print $4}'")
 	} else if processExists("lxsession") {
 		return "LXDE"
+	} else if processExists("i3") {
+		return "i3 " + runCommand("i3 --version | awk '{print $3}'")
 	} else if processExists("sway") {
-		return "Sway " + runCommand("sway --version | awk '{print $3}'")
+		if runCommand("sway --version | awk '{print $1}'") == "swayfx" {
+			return "SwayFX " + runCommand("sway --version | awk '{print $3}'")
+		} else {
+			return "Sway " + runCommand("sway --version | awk '{print $3}'")
+		}
 	} else if processExists("bspwm") {
 		return "Bspwm " + runCommand("bspwm -v")
+	} else if processExists("Hyprland") {
+		return "Hyprland " + runCommand("hyprctl version | sed -n 3p | awk '{print $2}' | tr -d 'v,'")
 	} else if processExists("icewm-session") {
 		return "IceWM " + runCommand("icewm --version | awk '{print $2}'")
 	}
