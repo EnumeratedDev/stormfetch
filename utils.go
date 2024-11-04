@@ -265,7 +265,7 @@ func GetDEWM() string {
 	} else if processExists("gnome-session") {
 		return "Gnome " + runCommand("gnome-shell --version | awk '{print $3}'")
 	} else if processExists("xfce4-session") {
-		return "XFCE " + runCommand("xfce4-session --version | grep xfce4-session | awk '{print $2}'")
+		return "XFCE " + runCommand("xfce4-session --version | head -n1 | awk '{print $2}'")
 	} else if processExists("cinnamon") {
 		return "Cinnamon " + runCommand("cinnamon --version | awk '{print $3}'")
 	} else if processExists("mate-panel") {
