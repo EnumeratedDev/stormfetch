@@ -3,7 +3,7 @@
 ## A simple linux fetch program written in go and bash
 
 ### Developers:
-- [CapCreeperGR ](https://gitlab.com/CapCreeperGR)
+- [EnumDev](https://gitlab.com/EnumDev)
 
 ### Project Information
 Stormfetch is a program that can read your system's information and display it in the terminal along with the ASCII art of the Linux distribution you are running.
