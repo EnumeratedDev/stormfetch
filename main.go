@@ -128,6 +128,7 @@ func SetupFetchEnv(showTimeTaken bool) []string {
 	setVariable("DISTRO_LONG_NAME", func() string { return getDistroInfo().LongName })
 	setVariable("DISTRO_SHORT_NAME", func() string { return getDistroInfo().ShortName })
 	setVariable("CPU_MODEL", func() string { return getCPUName() })
+	setVariable("MOTHERBOARD", func() string { return getMotherboardModel() })
 	setVariable("CPU_THREADS", func() string { return strconv.Itoa(getCPUThreads()) })
 	start := time.Now().UnixMilli()
 	memory := GetMemoryInfo()

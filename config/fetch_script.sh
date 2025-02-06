@@ -7,6 +7,7 @@ echo -e "${C3}Packages: ${C4}$(get_packages)"
 echo -e "${C3}Shell: ${C4}${USER_SHELL}"
 echo -e "${C3}Init: ${C4}${INIT_SYSTEM}"
 echo -e "${C3}Libc: ${C4}${LIBC}"
+[ -n "$MOTHERBOARD" ] && echo -e "${C3}Motherboard: ${C4}${MOTHERBOARD}"
 [ -n "$CPU_MODEL" ] && echo -e "${C3}CPU: ${C4}${CPU_MODEL} (${CPU_THREADS} threads)"
 for i in $(seq "${CONNECTED_GPUS}"); do
     gpu="GPU$i"

@@ -100,6 +100,14 @@ func getDistroAsciiArt() string {
 	}
 }
 
+func getMotherboardModel() string {
+	bytes, err := os.ReadFile("/sys/devices/virtual/dmi/id/board_name")
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(bytes))
+}
+
 func getCPUName() string {
 	cpu, err := ghw.CPU()
 	if err != nil {
