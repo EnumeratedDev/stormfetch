@@ -244,7 +244,7 @@ func GetShell() string {
 func GetDEWM() string {
 	processes, err := ps.Processes()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error: could not get processes: %s", err)
 	}
 	var executables []string
 	for _, process := range processes {

@@ -43,3 +43,6 @@ if [ -n "$DISPLAY_PROTOCOL" ]; then
   done
 fi
 [ -n "$DE_WM" ] && echo -e "${C3}DE/WM: ${C4}${DE_WM}"
+
+# Exiting with error code 0 in case the condition above returns 1
+exit 0

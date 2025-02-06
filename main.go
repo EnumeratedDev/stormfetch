@@ -260,7 +260,7 @@ func runStormfetch() {
 	}
 	out, err := cmd.Output()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error: Could not run fetch script: %s", err)
 	}
 	// Print Distro Information
 	maxWidth := 0
