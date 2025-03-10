@@ -438,6 +438,8 @@ func GetInitSystem() string {
 		return "Runit"
 	case "dinit":
 		return "Dinit " + runCommand("dinit --version | head -n1 | awk '{print substr($3, 1, length($3)-1)}'")
+	case "enit":
+		return "Enit " + runCommand("enit --version | awk '{print $3}'")
 	default:
 		return process.Executable()
 	}
