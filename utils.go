@@ -419,18 +419,27 @@ func GetInitSystem() string {
 		return strings.TrimSpace(string(out))
 	}
 
-	link, err := os.Readlink("/sbin/init")
+	process, err := ps.FindProcess(1)
 	if err != nil {
-		return "Unknown"
+		return ""
 	}
-	if path.Base(link) == "systemd" {
-		return "Systemd " + runCommand("systemctl --version | head -1 | awk '{print $2}'")
-	} else if path.Base(link) == "openrc-init" {
+
+	// Special cases
+	// OpenRC check
+	if _, err := os.Stat("/usr/sbin/openrc"); err == nil {
 		return "OpenRC " + runCommand("openrc --version | awk '{print $3}'")
-	} else if path.Base(link) == "runit-init" {
+	}
+
+	// Default PID 1 process name checking
+	switch process.Executable() {
+	case "systemd":
+		return "Systemd " + runCommand("systemctl --version | head -n1 | awk '{print $2}'")
+	case "runit":
 		return "Runit"
-	} else {
-		return "Unknown"
+	case "dinit":
+		return "Dinit " + runCommand("dinit --version | head -n1 | awk '{print substr($3, 1, length($3)-1)}'")
+	default:
+		return process.Executable()
 	}
 }
 
