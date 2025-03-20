@@ -280,7 +280,7 @@ func GetDEWM() string {
 		return "MATE " + runCommand("mate-about --version | awk '{print $4}'")
 	} else if processExists("lxsession") {
 		return "LXDE"
-	} else if processExists("i3") {
+	} else if processExists("i3") || processExists("i3-with-shmlog") {
 		return "i3 " + runCommand("i3 --version | awk '{print $3}'")
 	} else if processExists("sway") {
 		if runCommand("sway --version | awk '{print $1}'") == "swayfx" {
