@@ -1,0 +1,153 @@
+package main
+
+import (
+	"github.com/mitchellh/go-ps"
+	"os"
+	"os/exec"
+	"path"
+	"strings"
+)
+
+type DistroInfo struct {
+	ID        string
+	LongName  string
+	ShortName string
+}
+
+func GetDistroInfo() DistroInfo {
+	info := DistroInfo{
+		ID:        "unknown",
+		LongName:  "Unknown",
+		ShortName: "Unknown",
+	}
+	if strings.TrimSpace(config.DistroName) != "" {
+		info.LongName = strings.TrimSpace(config.DistroName)
+		info.ShortName = strings.TrimSpace(config.DistroName)
+	}
+	var releaseMap = make(map[string]string)
+	if _, err := os.Stat("/etc/os-release"); err == nil {
+		releaseMap, err = ReadKeyValueFile("/etc/os-release")
+		if err != nil {
+			return info
+		}
+	}
+	if id, ok := releaseMap["ID"]; ok {
+		info.ID = id
+	}
+	if longName, ok := releaseMap["PRETTY_NAME"]; ok && info.LongName == "Unknown" {
+		info.LongName = longName
+	}
+	if shortName, ok := releaseMap["NAME"]; ok && info.ShortName == "Unknown" {
+		info.ShortName = shortName
+	}
+	return info
+}
+
+func GetDistroAsciiArt() string {
+	defaultAscii :=
+		`    .--.
+   |o_o |
+   |:_/ |
+  //   \ \
+ (|     | )
+/'\_   _/'\
+\___)=(___/ `
+	var id string
+	if config.Ascii == "auto" {
+		id = GetDistroInfo().ID
+	} else {
+		id = config.Ascii
+	}
+	userConfDir, err := os.UserConfigDir()
+	if err != nil {
+		if _, err := os.Stat(path.Join(systemConfigDir, "stormfetch/ascii/", id)); err == nil {
+			bytes, err := os.ReadFile(path.Join(systemConfigDir, "stormfetch/ascii/", id))
+			if err != nil {
+				return defaultAscii
+			}
+			return string(bytes)
+		} else {
+			return defaultAscii
+		}
+	}
+	if _, err := os.Stat(path.Join(userConfDir, "stormfetch/ascii/", id)); err == nil {
+		bytes, err := os.ReadFile(path.Join(userConfDir, "stormfetch/ascii/", id))
+		if err != nil {
+			return defaultAscii
+		}
+		return string(bytes)
+	} else if _, err := os.Stat(path.Join(systemConfigDir, "stormfetch/ascii/", id)); err == nil {
+		bytes, err := os.ReadFile(path.Join(systemConfigDir, "stormfetch/ascii/", id))
+		if err != nil {
+			return defaultAscii
+		}
+		return strings.TrimRight(string(bytes), "\n\t ")
+	} else {
+		return defaultAscii
+	}
+}
+
+func GetInitSystem() string {
+	runCommand := func(command string) string {
+		cmd := exec.Command("/bin/bash", "-c", command)
+		workdir, err := os.Getwd()
+		if err != nil {
+			return ""
+		}
+		cmd.Dir = workdir
+		cmd.Env = os.Environ()
+		out, err := cmd.Output()
+		if err != nil {
+			return ""
+		}
+		return strings.TrimSpace(string(out))
+	}
+
+	process, err := ps.FindProcess(1)
+	if err != nil {
+		return ""
+	}
+
+	// Special cases
+	// OpenRC check
+	if _, err := os.Stat("/usr/sbin/openrc"); err == nil {
+		return "OpenRC " + runCommand("openrc --version | awk '{print $3}'")
+	}
+
+	// Default PID 1 process name checking
+	switch process.Executable() {
+	case "systemd":
+		return "Systemd " + runCommand("systemctl --version | head -n1 | awk '{print $2}'")
+	case "runit":
+		return "Runit"
+	case "dinit":
+		return "Dinit " + runCommand("dinit --version | head -n1 | awk '{print substr($3, 1, length($3)-1)}'")
+	case "enit":
+		return "Enit " + runCommand("enit --version | awk '{print $3}'")
+	default:
+		return process.Executable()
+	}
+}
+
+func GetLibc() string {
+	checkLibcOutput, err := exec.Command("ldd", "/usr/bin/ls").Output()
+	if err != nil {
+		return "Unknown"
+	}
+
+	if strings.Contains(string(checkLibcOutput), "ld-musl") {
+		// Using Musl Libc
+		output, _ := exec.Command("ldd").CombinedOutput()
+		return "Musl " + strings.TrimPrefix(strings.Split(strings.TrimSpace(string(output)), "\n")[1], "Version ")
+	} else {
+		// Using Glibc
+		cmd := exec.Command("ldd", "--version")
+		output, err := cmd.Output()
+		if err != nil {
+			return "Glibc"
+		}
+		outputSplit := strings.Split(strings.Split(strings.TrimSpace(string(output)), "\n")[0], " ")
+		ver := outputSplit[len(outputSplit)-1]
+		return "Glibc " + ver
+	}
+}

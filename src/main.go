@@ -129,11 +129,11 @@ func SetupFetchEnv(showTimeTaken bool) []string {
 		}
 	}
 	setVariable("PACKAGES", func() string { return GetInstalledPackages() })
-	setVariable("DISTRO_LONG_NAME", func() string { return getDistroInfo().LongName })
-	setVariable("DISTRO_SHORT_NAME", func() string { return getDistroInfo().ShortName })
-	setVariable("CPU_MODEL", func() string { return getCPUName() })
-	setVariable("MOTHERBOARD", func() string { return getMotherboardModel() })
-	setVariable("CPU_THREADS", func() string { return strconv.Itoa(getCPUThreads()) })
+	setVariable("DISTRO_LONG_NAME", func() string { return GetDistroInfo().LongName })
+	setVariable("DISTRO_SHORT_NAME", func() string { return GetDistroInfo().ShortName })
+	setVariable("CPU_MODEL", func() string { return GetCPUModel() })
+	setVariable("MOTHERBOARD", func() string { return GetMotherboardModel() })
+	setVariable("CPU_THREADS", func() string { return strconv.Itoa(GetCPUThreads()) })
 	start := time.Now().UnixMilli()
 	memory := GetMemoryInfo()
 	end := time.Now().UnixMilli()
@@ -174,7 +174,7 @@ func SetupFetchEnv(showTimeTaken bool) []string {
 	setVariable("INIT_SYSTEM", func() string { return GetInitSystem() })
 	setVariable("LOCAL_IPV4", func() string { return GetLocalIP() })
 	start = time.Now().UnixMilli()
-	monitors := getMonitorResolution()
+	monitors := GetMonitorResolution()
 	end = time.Now().UnixMilli()
 	if showTimeTaken {
 		fmt.Println(fmt.Sprintf("Setting '%s' took %d milliseconds", "MONITOR_*", end-start))
@@ -186,7 +186,7 @@ func SetupFetchEnv(showTimeTaken bool) []string {
 		}
 	}
 	start = time.Now().UnixMilli()
-	gpus := getGPUNames()
+	gpus := GetGPUModels()
 	end = time.Now().UnixMilli()
 	if showTimeTaken {
 		fmt.Println(fmt.Sprintf("Setting '%s' took %d milliseconds", "GPU_*", end-start))
@@ -224,7 +224,7 @@ func runStormfetch() {
 		}
 	}
 	setColorMap()
-	ascii := getDistroAsciiArt()
+	ascii := GetDistroAsciiArt()
 	if strings.HasPrefix(ascii, "#/") {
 		firstLine := strings.Split(ascii, "\n")[0]
 		if !config.ForceConfigAnsii {
