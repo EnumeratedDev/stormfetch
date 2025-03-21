@@ -446,21 +446,26 @@ func GetInitSystem() string {
 }
 
 func GetLibc() string {
-	cmd := exec.Command("/bin/bash", "-c", "find /usr/lib64/ -maxdepth 1 -name 'ld-*' | grep musl")
-	if err := cmd.Run(); err != nil {
-		cmd = exec.Command("/bin/bash", "-c", "ldd --version | head -1 | cut -d' ' -f4")
-		bytes, err := cmd.Output()
+	checkLibcOutput, err := exec.Command("ldd", "/usr/bin/ls").Output()
+	if err != nil {
+		return "Unknown"
+	}
+
+	if strings.Contains(string(checkLibcOutput), "ld-musl") {
+		// Using Musl Libc
+		output, _ := exec.Command("ldd").CombinedOutput()
+		return "Musl " + strings.TrimPrefix(strings.Split(strings.TrimSpace(string(output)), "\n")[1], "Version ")
+	} else {
+		// Using Glibc
+		cmd := exec.Command("ldd", "--version")
+		output, err := cmd.Output()
 		if err != nil {
 			return "Glibc"
 		}
-		return "Glibc " + strings.TrimSpace(string(bytes))
+		outputSplit := strings.Split(strings.Split(strings.TrimSpace(string(output)), "\n")[0], " ")
+		ver := outputSplit[len(outputSplit)-1]
+		return "Glibc " + ver
 	}
-	cmd = exec.Command("/bin/bash", "-c", "ldd 2>&1 | grep 'Version' | cut -d' ' -f2")
-	bytes, err := cmd.Output()
-	if err != nil {
-		return "Musl"
-	}
-	return "Musl " + strings.TrimSpace(string(bytes))
 }
 
 func GetLocalIP() string {
