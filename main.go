@@ -28,18 +28,21 @@ var config = StormfetchConfig{
 	ForceConfigAnsii:  false,
 	DependencyWarning: true,
 	ShowFSType:        false,
+	HiddenPartitions:  make([]string, 0),
 	HiddenGPUS:        make([]int, 0),
 }
 
 type StormfetchConfig struct {
-	Ascii             string `yaml:"distro_ascii"`
-	DistroName        string `yaml:"distro_name"`
-	FetchScript       string `yaml:"fetch_script"`
-	AnsiiColors       []int  `yaml:"ansii_colors"`
-	ForceConfigAnsii  bool   `yaml:"force_config_ansii"`
-	DependencyWarning bool   `yaml:"dependency_warning"`
-	ShowFSType        bool   `yaml:"show_fs_type"`
-	HiddenGPUS        []int  `yaml:"hidden_gpus"`
+	Ascii             string   `yaml:"distro_ascii"`
+	DistroName        string   `yaml:"distro_name"`
+	FetchScript       string   `yaml:"fetch_script"`
+	AnsiiColors       []int    `yaml:"ansii_colors"`
+	ForceConfigAnsii  bool     `yaml:"force_config_ansii"`
+	DependencyWarning bool     `yaml:"dependency_warning"`
+	ShowFSType        bool     `yaml:"show_fs_type"`
+	HiddenPartitions  []string `yaml:"hidden_partitions"`
+	HiddenFilesystems []string `yaml:"hidden_filesystems"`
+	HiddenGPUS        []int    `yaml:"hidden_gpus"`
 }
 
 func main() {
@@ -143,7 +146,7 @@ func SetupFetchEnv(showTimeTaken bool) []string {
 		env["MEM_FREE"] = strconv.Itoa(memory.MemAvailable)
 	}
 	start = time.Now().UnixMilli()
-	partitions := getMountedPartitions()
+	partitions := GetMountedPartitions(config.HiddenPartitions, config.HiddenFilesystems)
 	end = time.Now().UnixMilli()
 	if showTimeTaken {
 		fmt.Println(fmt.Sprintf("Setting '%s' took %d milliseconds", "PARTITION_*", end-start))
@@ -156,8 +159,8 @@ func SetupFetchEnv(showTimeTaken bool) []string {
 			if part.Label != "" {
 				env["PARTITION"+strconv.Itoa(i+1)+"_LABEL"] = part.Label
 			}
-			if part.Type != "" && config.ShowFSType {
-				env["PARTITION"+strconv.Itoa(i+1)+"_TYPE"] = part.Type
+			if part.FileystemType != "" && config.ShowFSType {
+				env["PARTITION"+strconv.Itoa(i+1)+"_TYPE"] = part.FileystemType
 			}
 			env["PARTITION"+strconv.Itoa(i+1)+"_TOTAL_SIZE"] = FormatBytes(part.TotalSize)
 			env["PARTITION"+strconv.Itoa(i+1)+"_USED_SIZE"] = FormatBytes(part.UsedSize)

@@ -4,4 +4,7 @@ ansii_colors: []
 force_config_ansii: false
 dependency_warning: true
 show_fs_type: true
+hidden_partitions: []
+# Hiding squashfs prevents snaps from showing up
+hidden_filesystems: ["squashfs"]
 hidden_gpus: []

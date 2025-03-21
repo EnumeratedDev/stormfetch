@@ -6,7 +6,6 @@ import (
 	"github.com/go-gl/glfw/v3.3/glfw"
 	"github.com/jackmordaunt/ghw"
 	"github.com/mitchellh/go-ps"
-	"github.com/moby/sys/mountinfo"
 	"log"
 	"math"
 	"net"
@@ -18,7 +17,6 @@ import (
 	"slices"
 	"strconv"
 	"strings"
-	"syscall"
 )
 
 type DistroInfo struct {
@@ -322,85 +320,6 @@ func getMonitorResolution() []string {
 		defer glfw.Terminate()
 	}
 	return monitors
-}
-
-type partition struct {
-	Device     string
-	MountPoint string
-	Label      string
-	Type       string
-	TotalSize  uint64
-	UsedSize   uint64
-	FreeSize   uint64
-}
-
-func getMountedPartitions() []partition {
-	mounts, err := mountinfo.GetMounts(func(info *mountinfo.Info) (skip, stop bool) {
-		return !strings.HasPrefix(info.Source, "/dev/"), false
-	})
-	fslabels, err := os.ReadDir("/dev/disk/by-label")
-	if err != nil && !os.IsNotExist(err) {
-		return nil
-	}
-	partlabels, err := os.ReadDir("/dev/disk/by-partlabel")
-	if err != nil && !os.IsNotExist(err) {
-		return nil
-	}
-	labels := make(map[string]string)
-	for _, entry := range partlabels {
-		link, err := filepath.EvalSymlinks(filepath.Join("/dev/disk/by-partlabel/", entry.Name()))
-		if err != nil {
-			continue
-		}
-		labels[link] = entry.Name()
-	}
-	for _, entry := range fslabels {
-		link, err := filepath.EvalSymlinks(filepath.Join("/dev/disk/by-label/", entry.Name()))
-		if err != nil {
-			continue
-		}
-		labels[link] = entry.Name()
-	}
-	var partitions []partition
-	for _, entry := range mounts {
-		p := partition{
-			entry.Source,
-			entry.Mountpoint,
-			"",
-			entry.FSType,
-			0,
-			0,
-			0,
-		}
-		skip := false
-		for _, part := range partitions {
-			if part.Device == p.Device {
-				skip = true
-			}
-		}
-		if skip {
-			continue
-		}
-		if value, ok := labels[entry.Source]; ok {
-			p.Label = value
-		}
-		buf := new(syscall.Statfs_t)
-		err = syscall.Statfs(p.MountPoint, buf)
-		if err != nil {
-			continue
-		}
-		totalBlocks := buf.Blocks
-		freeBlocks := buf.Bfree
-		usedBlocks := totalBlocks - freeBlocks
-		blockSize := uint64(buf.Bsize)
-
-		p.TotalSize = totalBlocks * blockSize
-		p.FreeSize = freeBlocks * blockSize
-		p.UsedSize = usedBlocks * blockSize
-
-		partitions = append(partitions, p)
-	}
-	return partitions
 }
 
 func GetInitSystem() string {

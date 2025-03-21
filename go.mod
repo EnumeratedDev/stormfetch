@@ -6,7 +6,6 @@ require (
 	github.com/go-gl/glfw/v3.3/glfw v0.0.0-20240506104042-037f3cc74f2a
 	github.com/jackmordaunt/ghw v1.0.4
 	github.com/mitchellh/go-ps v1.0.0
-	github.com/moby/sys/mountinfo v0.7.1
 	gopkg.in/yaml.v3 v3.0.1
 )
 
