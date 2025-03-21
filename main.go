@@ -125,6 +125,7 @@ func SetupFetchEnv(showTimeTaken bool) []string {
 			fmt.Println(fmt.Sprintf("Setting '%s' took %d milliseconds", key, end-start))
 		}
 	}
+	setVariable("PACKAGES", func() string { return GetInstalledPackages() })
 	setVariable("DISTRO_LONG_NAME", func() string { return getDistroInfo().LongName })
 	setVariable("DISTRO_SHORT_NAME", func() string { return getDistroInfo().ShortName })
 	setVariable("CPU_MODEL", func() string { return getCPUName() })
