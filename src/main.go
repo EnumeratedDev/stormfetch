@@ -22,14 +22,13 @@ var fetchScriptPath = ""
 var TimeTaken = false
 
 var config = StormfetchConfig{
-	Ascii:             "auto",
-	FetchScript:       "auto",
-	AnsiiColors:       make([]int, 0),
-	ForceConfigAnsii:  false,
-	DependencyWarning: true,
-	ShowFSType:        false,
-	HiddenPartitions:  make([]string, 0),
-	HiddenGPUS:        make([]int, 0),
+	Ascii:            "auto",
+	FetchScript:      "auto",
+	AnsiiColors:      make([]int, 0),
+	ForceConfigAnsii: false,
+	ShowFSType:       false,
+	HiddenPartitions: make([]string, 0),
+	HiddenGPUS:       make([]int, 0),
 }
 
 type StormfetchConfig struct {
@@ -38,7 +37,6 @@ type StormfetchConfig struct {
 	FetchScript       string   `yaml:"fetch_script"`
 	AnsiiColors       []int    `yaml:"ansii_colors"`
 	ForceConfigAnsii  bool     `yaml:"force_config_ansii"`
-	DependencyWarning bool     `yaml:"dependency_warning"`
 	ShowFSType        bool     `yaml:"show_fs_type"`
 	HiddenPartitions  []string `yaml:"hidden_partitions"`
 	HiddenFilesystems []string `yaml:"hidden_filesystems"`
@@ -48,7 +46,6 @@ type StormfetchConfig struct {
 func main() {
 	readConfig()
 	readFlags()
-	checkDependencies()
 	runStormfetch()
 }
 
@@ -96,26 +93,6 @@ func readFlags() {
 	flag.StringVar(&config.DistroName, "distro-name", config.DistroName, "Set distro name")
 	flag.BoolVar(&TimeTaken, "time-taken", false, "Show time taken for fetched information")
 	flag.Parse()
-}
-
-func checkDependencies() {
-	// Show Dependency warning if enabled
-	if config.DependencyWarning {
-		var dependencies []string
-		var missing []string
-		for _, depend := range dependencies {
-			if _, err := os.Stat(path.Join("/usr/bin/", depend)); err != nil {
-				missing = append(missing, depend)
-			}
-		}
-		if len(missing) != 0 {
-			fmt.Println("[WARNING] Stormfetch functionality may be limited due to the following dependencies not being installed:")
-			for _, depend := range missing {
-				fmt.Println(depend)
-			}
-			fmt.Println("You can disable this warning through your stormfetch config")
-		}
-	}
 }
 
 func SetupFetchEnv(showTimeTaken bool) []string {
