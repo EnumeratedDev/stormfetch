@@ -6,6 +6,7 @@ import (
 	"github.com/jackmordaunt/ghw"
 	"os"
 	"os/exec"
+	"slices"
 	"strings"
 )
 
@@ -28,20 +29,24 @@ func GetCPUThreads() int {
 	return int(cpu.TotalThreads)
 }
 
-func GetGPUModels() []string {
-	var ret []string
-	cmd := exec.Command("/bin/bash", "-c", "lspci -v -m | grep 'VGA' -A6 | grep '^Device:' | sed 's/^Device://' | awk '{$1=$1};1'")
+func GetGPUModels() (ret []string) {
+	cmd := exec.Command("sh", "-c", "lspci -v -m | grep 'VGA' -A6 | grep '^Device:'")
 	bytes, err := cmd.Output()
 	if err != nil {
 		return nil
 	}
-	for _, name := range strings.Split(string(bytes), "\n") {
-		name = strings.TrimSpace(name)
-		if name == "" {
+
+	for i, gpu := range strings.Split(string(bytes), "\n") {
+		if slices.Contains(config.HiddenGPUS, i+1) {
 			continue
 		}
-		ret = append(ret, name)
+		if gpu == "" {
+			continue
+		}
+		gpu = strings.TrimPrefix(strings.TrimSpace(gpu), "Device:\t")
+		ret = append(ret, gpu)
 	}
+
 	return ret
 }
 
