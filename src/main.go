@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"gopkg.in/yaml.v3"
 	"log"
 	"os"
 	"os/exec"
@@ -12,6 +11,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"gopkg.in/yaml.v3"
 )
 
 var systemConfigDir = "/etc/"
@@ -102,7 +103,7 @@ func SetupFetchEnv(showTimeTaken bool) []string {
 		env[key] = setter()
 		end := time.Now().UnixMilli()
 		if showTimeTaken {
-			fmt.Println(fmt.Sprintf("Setting '%s' took %d milliseconds", key, end-start))
+			fmt.Printf("Setting '%s' took %d milliseconds\n", key, end-start)
 		}
 	}
 	setVariable("PACKAGES", func() string { return GetInstalledPackages() })
@@ -115,7 +116,7 @@ func SetupFetchEnv(showTimeTaken bool) []string {
 	memory := GetMemoryInfo()
 	end := time.Now().UnixMilli()
 	if showTimeTaken {
-		fmt.Println(fmt.Sprintf("Setting '%s' took %d milliseconds", "MEM_*", end-start))
+		fmt.Printf("Setting '%s' took %d milliseconds\n", "MEM_*", end-start)
 	}
 	if memory != nil {
 		env["MEM_TOTAL"] = strconv.Itoa(memory.MemTotal)
@@ -126,7 +127,7 @@ func SetupFetchEnv(showTimeTaken bool) []string {
 	partitions := GetMountedPartitions(config.HiddenPartitions, config.HiddenFilesystems)
 	end = time.Now().UnixMilli()
 	if showTimeTaken {
-		fmt.Println(fmt.Sprintf("Setting '%s' took %d milliseconds", "PARTITION_*", end-start))
+		fmt.Printf("Setting '%s' took %d milliseconds\n", "PARTITION_*", end-start)
 	}
 	if len(partitions) != 0 {
 		env["MOUNTED_PARTITIONS"] = strconv.Itoa(len(partitions))
@@ -154,7 +155,7 @@ func SetupFetchEnv(showTimeTaken bool) []string {
 	monitors := GetMonitorResolution()
 	end = time.Now().UnixMilli()
 	if showTimeTaken {
-		fmt.Println(fmt.Sprintf("Setting '%s' took %d milliseconds", "MONITOR_*", end-start))
+		fmt.Printf("Setting '%s' took %d milliseconds\n", "MONITOR_*", end-start)
 	}
 	if len(monitors) != 0 {
 		env["CONNECTED_MONITORS"] = strconv.Itoa(len(monitors))
@@ -166,7 +167,7 @@ func SetupFetchEnv(showTimeTaken bool) []string {
 	gpus := GetGPUModels()
 	end = time.Now().UnixMilli()
 	if showTimeTaken {
-		fmt.Println(fmt.Sprintf("Setting '%s' took %d milliseconds", "GPU_*", end-start))
+		fmt.Printf("Setting '%s' took %d milliseconds\n", "GPU_*", end-start)
 	}
 	if len(gpus) != 0 {
 		env["CONNECTED_GPUS"] = strconv.Itoa(len(gpus))
