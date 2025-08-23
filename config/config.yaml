@@ -1,7 +1,5 @@
 distro_ascii: auto
 fetch_script: auto
-ansii_colors: []
-force_config_ansii: false
 show_fs_type: true
 hidden_partitions: []
 # Hiding squashfs prevents snaps from showing up

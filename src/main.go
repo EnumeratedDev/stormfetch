@@ -25,8 +25,6 @@ var TimeTaken = false
 var config = StormfetchConfig{
 	Ascii:            "auto",
 	FetchScript:      "auto",
-	AnsiiColors:      make([]int, 0),
-	ForceConfigAnsii: false,
 	ShowFSType:       false,
 	HiddenPartitions: make([]string, 0),
 	HiddenGPUS:       make([]int, 0),
@@ -189,49 +187,23 @@ func SetupFetchEnv(showTimeTaken bool) []string {
 }
 
 func runStormfetch() {
-	// Fetch ascii art and apply colors
-	colorMap := make(map[string]string)
-	colorMap["C0"] = "\033[0m"
-	setColorMap := func() {
-		for i := 0; i < 6; i++ {
-			if i > len(config.AnsiiColors)-1 {
-				colorMap["C"+strconv.Itoa(i+1)] = "\033[0m"
-				continue
-			}
-			colorMap["C"+strconv.Itoa(i+1)] = fmt.Sprintf("\033[1m\033[38;5;%dm", config.AnsiiColors[i])
-		}
-	}
-	setColorMap()
-	ascii := GetDistroAsciiArt()
-	if strings.HasPrefix(ascii, "#/") {
-		firstLine := strings.Split(ascii, "\n")[0]
-		if !config.ForceConfigAnsii {
-			ansiiColors := strings.Split(strings.TrimPrefix(firstLine, "#/"), ";")
-			for i, color := range ansiiColors {
-				atoi, err := strconv.Atoi(color)
-				if err != nil {
-					log.Fatal(err)
-				}
-				if i < len(config.AnsiiColors) {
-					config.AnsiiColors[i] = atoi
-				} else {
-					config.AnsiiColors = append(config.AnsiiColors, atoi)
-				}
-			}
-			setColorMap()
-		}
-		ascii = os.Expand(ascii, func(s string) string {
+	// Fetch ascii art
+	asciiArt := GetDistroAsciiArt()
+
+	// Setup color map
+	colorMap := setupColorMap(asciiArt)
+	if len(colorMap) > 0 {
+		asciiArt = os.Expand(asciiArt, func(s string) string {
 			return colorMap[s]
 		})
-		ascii = strings.TrimPrefix(ascii, firstLine+"\n")
-	} else {
-		ascii = os.Expand(ascii, func(s string) string {
-			return colorMap[s]
-		})
+
+		asciiArt = strings.SplitN(asciiArt, "\n", 2)[1]
 	}
-	asciiSplit := strings.Split(ascii, "\n")
-	asciiNoColor := StripAnsii(ascii)
-	//Execute fetch script
+
+	asciiSplit := strings.Split(asciiArt, "\n")
+	asciiNoColor := StripAnsii(asciiArt)
+
+	// Execute fetch script
 	cmd := exec.Command("/bin/bash", fetchScriptPath)
 	cmd.Dir = path.Dir(fetchScriptPath)
 	cmd.Env = os.Environ()
