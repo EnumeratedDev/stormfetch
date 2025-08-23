@@ -1,11 +1,12 @@
 package main
 
 import (
-	"github.com/mitchellh/go-ps"
 	"os"
 	"os/exec"
 	"path"
 	"strings"
+
+	"github.com/mitchellh/go-ps"
 )
 
 type DistroInfo struct {
@@ -24,13 +25,24 @@ func GetDistroInfo() DistroInfo {
 		info.LongName = strings.TrimSpace(config.DistroName)
 		info.ShortName = strings.TrimSpace(config.DistroName)
 	}
-	var releaseMap = make(map[string]string)
-	if _, err := os.Stat("/etc/os-release"); err == nil {
-		releaseMap, err = ReadKeyValueFile("/etc/os-release")
-		if err != nil {
-			return info
-		}
+
+	// Detect release file location
+	var releaseFile string
+	if _, err := os.Stat("/bedrock/etc/os-release"); os.Getenv("BEDROCK_RESTRICT") == "" && err == nil {
+		// Using Bedrock Linux
+		releaseFile = "/bedrock/etc/os-release"
+	} else if _, err := os.Stat("/etc/os-release"); err == nil {
+		// Using a regular linux distribution
+		releaseFile = "/etc/os-release"
+	} else {
+		return info
 	}
+
+	releaseMap, err := ReadKeyValueFile(releaseFile)
+	if err != nil {
+		return info
+	}
+
 	if id, ok := releaseMap["ID"]; ok {
 		info.ID = id
 	}
