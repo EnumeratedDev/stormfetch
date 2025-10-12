@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/mitchellh/go-ps"
 	"log"
 	"os"
 	"os/exec"
@@ -9,6 +8,8 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+
+	"github.com/mitchellh/go-ps"
 )
 
 func GetShell() string {
@@ -98,6 +99,8 @@ func GetDEWM() string {
 		return "MATE " + runCommand("mate-about --version | awk '{print $4}'")
 	} else if processExists("lxsession") {
 		return "LXDE"
+	} else if processExists("lxqt-session") {
+		return "LXQt " + runCommand("lxqt-session --version | head -n1 | awk '{print $2}'")
 	} else if processExists("i3") || processExists("i3-with-shmlog") {
 		return "i3 " + runCommand("i3 --version | awk '{print $3}'")
 	} else if processExists("sway") {
