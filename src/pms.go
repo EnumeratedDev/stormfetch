@@ -17,7 +17,7 @@ var PackageManagers = []PackageManager{
 	{Name: "pacman", ExecutableName: "pacman", PackageListCommand: "pacman -Q"},
 	{Name: "rpm", ExecutableName: "rpm", PackageListCommand: "rpm -qa"},
 	{Name: "xbps", ExecutableName: "xbps-query", PackageListCommand: "xbps-query -l"},
-	{Name: "bpm", ExecutableName: "bpm", PackageListCommand: "bpm list -n"},
+	{Name: "bpm", ExecutableName: "bpm", PackageListCommand: "ls /var/lib/bpm/installed/"},
 	{Name: "portage", ExecutableName: "emerge", PackageListCommand: "find /var/db/pkg/*/ -mindepth 1 -maxdepth 1"},
 	{Name: "flatpak", ExecutableName: "flatpak", PackageListCommand: "flatpak list"},
 	{Name: "snap", ExecutableName: "snap", PackageListCommand: "snap list | tail +2"},
