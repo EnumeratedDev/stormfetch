@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode"
 )
 
 // Build-time variables
@@ -47,6 +48,20 @@ func run() {
 		asciiArt = strings.SplitN(asciiArt, "\n", 2)[1]
 	}
 	asciiArtNoColor := asciiArt
+
+	// Rewrite last color code to the start of the next line
+	lastColor := "0"
+	for i := 1; i < len(asciiArt); i++ {
+		rune := rune(asciiArt[i])
+
+		if unicode.IsDigit(rune) && asciiArt[i-1] == '%' {
+			lastColor = string(rune)
+		}
+
+		if rune == '\n' {
+			asciiArt = asciiArt[:i+1] + "%" + lastColor + asciiArt[i+1:]
+		}
+	}
 
 	// Setup color map and replace colors in ascii art
 	colorMap := setupColorMap(asciiArtHeader)
@@ -107,7 +122,7 @@ func run() {
 		}
 	}
 
-	// Split ascii art into each lien
+	// Split ascii art into each line
 	asciiArtSplit := strings.Split(asciiArt, "\n")
 	asciiArtNoColorSplit := strings.Split(asciiArtNoColor, "\n")
 
