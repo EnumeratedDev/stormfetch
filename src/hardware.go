@@ -10,29 +10,41 @@ import (
 	"github.com/jackmordaunt/ghw"
 )
 
+type CPU struct {
+	Vendor  string
+	Model   string
+	Cores   int
+	Threads int
+}
+
 type Monitor struct {
 	Width       int
 	Height      int
 	RefreshRate int
 }
 
-func GetCPUModel() string {
-	cpu, err := ghw.CPU()
-	if err != nil {
-		return ""
-	}
-	if len(cpu.Processors) == 0 {
-		return ""
-	}
-	return cpu.Processors[0].Model
-}
+func GetCPUs(hiddenCPUs []int) []CPU {
+	ret := make([]CPU, 0)
 
-func GetCPUThreads() int {
-	cpu, err := ghw.CPU()
+	cpus, err := ghw.CPU()
 	if err != nil {
-		return 0
+		return ret
 	}
-	return int(cpu.TotalThreads)
+
+	for i, cpu := range cpus.Processors {
+		if slices.Contains(hiddenCPUs, i+1) {
+			continue
+		}
+
+		ret = append(ret, CPU{
+			Vendor:  cpu.Vendor,
+			Model:   cpu.Model,
+			Cores:   int(cpu.NumCores),
+			Threads: int(cpu.NumThreads),
+		})
+	}
+
+	return ret
 }
 
 func GetGPUModels(hiddenGPUS []int) (ret []string) {

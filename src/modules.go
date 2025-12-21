@@ -171,19 +171,42 @@ func initializeModuleMap() {
 	RegisterModule(MotherboardModule)
 
 	// Motherboard module
-	cpuModule := StormfetchModule{stormfetchModuleConfig: stormfetchModuleConfig{Name: "cpu", Format: "%3CPU: %4$CPU_MODEL ($CPU_THREADS threads)"}, Execute: func(sm StormfetchModule) string {
-		return os.Expand(sm.Format, func(s string) string {
-			switch s {
-			case "CPU_MODEL":
-				return GetCPUModel()
-			case "CPU_THREADS":
-				return strconv.Itoa(GetCPUThreads())
-			default:
-				return ""
-			}
-		})
+	cpusModule := StormfetchModule{stormfetchModuleConfig: stormfetchModuleConfig{Name: "cpus", Format: "%3CPU: %4$CPU_MODEL ($CPU_THREADS threads)"}, Execute: func(sm StormfetchModule) string {
+		hiddenCPUsInterface, _ := sm.GetData("hidden_cpus", make([]any, 0))
+
+		// Convert interface slices to string slices
+		hiddenCPUs := make([]int, 0)
+		for _, value := range hiddenCPUsInterface.([]any) {
+			hiddenCPUs = append(hiddenCPUs, value.(int))
+		}
+
+		builder := strings.Builder{}
+		cpus := GetCPUs(hiddenCPUs)
+
+		for i, cpu := range cpus {
+			expanded := os.Expand(sm.Format, func(s string) string {
+				switch s {
+				case "CPU_NUM":
+					return strconv.Itoa(i + 1)
+				case "CPU_VENDOR":
+					return cpu.Vendor
+				case "CPU_MODEL":
+					return cpu.Model
+				case "CPU_CORES":
+					return strconv.Itoa(cpu.Cores)
+				case "CPU_THREADS":
+					return strconv.Itoa(cpu.Threads)
+				default:
+					return ""
+				}
+			})
+
+			builder.WriteString(expanded + "\n")
+		}
+
+		return builder.String()
 	}}
-	RegisterModule(cpuModule)
+	RegisterModule(cpusModule)
 
 	// GPUs module
 	gpusModule := StormfetchModule{stormfetchModuleConfig: stormfetchModuleConfig{Name: "gpus", Format: "%3GPU: %4$GPU_MODEL"}, Execute: func(sm StormfetchModule) string {

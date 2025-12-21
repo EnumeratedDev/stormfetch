@@ -7,7 +7,7 @@ modules:
   - name: shell
   - name: init
   - name: motherboard
-  - name: cpu
+  - name: cpus
   - name: gpus
   - name: memory
   - name: partitions
