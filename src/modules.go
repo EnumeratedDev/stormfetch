@@ -262,9 +262,10 @@ func initializeModuleMap() {
 	RegisterModule(memoryModule)
 
 	// Partitions module
-	partitionsModule := StormfetchModule{stormfetchModuleConfig: stormfetchModuleConfig{Name: "partitions", Format: "%3Partition $PART_AUTONAME: %4$PART_USED / $PART_TOTAL"}, Execute: func(sm StormfetchModule) string {
+	partitionsModule := StormfetchModule{stormfetchModuleConfig: stormfetchModuleConfig{Name: "partitions", Format: "%3Partition ${PART_AUTONAME} (${PART_FS}): %4${PART_USED} / ${PART_TOTAL}"}, Execute: func(sm StormfetchModule) string {
 		hiddenPartitionsInterface, _ := sm.GetData("hidden_partitions", make([]any, 0))
 		hiddenFilesystemsInterface, _ := sm.GetData("hidden_filesystems", make([]any, 0))
+		alternativeNamesInterface, _ := sm.GetData("alternative_names", make(map[string]any, 0))
 
 		// Convert interface slices to string slices
 		hiddenPartitions := make([]string, 0)
@@ -276,12 +277,22 @@ func initializeModuleMap() {
 			hiddenFilesystems = append(hiddenFilesystems, value.(string))
 		}
 
+		// Convert interface map to map[string]string
+		alternativeNames := make(map[string]string)
+		for key, value := range alternativeNamesInterface.(map[string]any) {
+			alternativeNames[key] = value.(string)
+		}
+
 		builder := strings.Builder{}
 		partitions := GetMountedPartitions(hiddenPartitions, hiddenFilesystems)
 
 		for i, partition := range partitions {
-			partitionAutoname := partition.Label
-			if partitionAutoname == "" {
+			partitionAutoname := ""
+			if altName, ok := alternativeNames[partition.Device]; ok {
+				partitionAutoname = altName
+			} else if partition.Label != "" {
+				partitionAutoname = partition.Label
+			} else {
 				partitionAutoname = partition.MountPoint
 			}
 

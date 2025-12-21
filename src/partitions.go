@@ -72,14 +72,19 @@ func GetMountedPartitions(hiddenPartitions, hiddenFilesystems []string) []partit
 			continue
 		}
 
+		device, err := filepath.EvalSymlinks(fields[0])
+		if err != nil {
+			device = fields[0]
+		}
+
 		p := partition{
-			fields[0],
-			fields[1],
-			"",
-			fields[2],
-			0,
-			0,
-			0,
+			Device:        device,
+			MountPoint:    fields[1],
+			Label:         "",
+			FileystemType: fields[2],
+			TotalSize:     0,
+			UsedSize:      0,
+			FreeSize:      0,
 		}
 
 		// Skip already added partitions
