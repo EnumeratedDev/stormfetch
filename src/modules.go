@@ -152,10 +152,17 @@ func initializeModuleMap() {
 
 	// Motherboard module
 	MotherboardModule := StormfetchModule{stormfetchModuleConfig: stormfetchModuleConfig{Name: "motherboard", Format: "%3Motherboard: %4$MOTHERBOARD"}, Execute: func(sm StormfetchModule) string {
+		motherboard := GetMotherboardModel()
+
+		// Return empty string if can't detect motherboard model
+		if motherboard == "" {
+			return ""
+		}
+
 		return os.Expand(sm.Format, func(s string) string {
 			switch s {
 			case "MOTHERBOARD":
-				return GetMotherboardModel()
+				return motherboard
 			default:
 				return ""
 			}
