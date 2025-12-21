@@ -2,21 +2,22 @@ package main
 
 import (
 	"fmt"
-	"strconv"
 	"strings"
 )
 
-func setupColorMap(asciiArt string) map[string]string {
-	colorMap := make(map[string]string)
+func setupColorMap(asciiArtHeader string) map[int]string {
+	colorMap := make(map[int]string)
+	colorMap[0] = "\033[0m"
 
-	// Read colors from ascii art
-	if strings.HasPrefix(asciiArt, "#/") {
-		firstLine := strings.Split(asciiArt, "\n")[0]
-		ansiColors := strings.Split(strings.TrimPrefix(firstLine, "#/"), ";")
+	// Return if header is empty
+	if asciiArtHeader == "" {
+		return colorMap
+	}
 
-		for i, ansiColor := range ansiColors {
-			colorMap["C"+strconv.Itoa(i+1)] = fmt.Sprintf("\033[38;5;%sm", ansiColor)
-		}
+	// Read colors from ascii art header
+	ansiColors := strings.Split(strings.TrimPrefix(asciiArtHeader, "#/"), ";")
+	for i, ansiColor := range ansiColors {
+		colorMap[i+1] = fmt.Sprintf("\033[38;5;%sm", ansiColor)
 	}
 
 	return colorMap

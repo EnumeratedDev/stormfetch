@@ -14,7 +14,7 @@ import (
 
 func GetShell() string {
 	runCommand := func(command string) string {
-		cmd := exec.Command("/bin/bash", "-c", command)
+		cmd := exec.Command("/bin/sh", "-c", command)
 		workdir, err := os.Getwd()
 		if err != nil {
 			return ""
@@ -74,7 +74,7 @@ func GetDEWM() string {
 		return slices.Contains(executables, process)
 	}
 	runCommand := func(command string) string {
-		cmd := exec.Command("/bin/bash", "-c", command)
+		cmd := exec.Command("/bin/sh", "-c", command)
 		workdir, err := os.Getwd()
 		if err != nil {
 			return ""

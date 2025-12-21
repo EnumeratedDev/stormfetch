@@ -1,20 +1,20 @@
 #/34;15;46;252
-${C2}             ...-:::::-...
-${C2}          .-MMMMMMMMMMMMMMM-.
-      .-MMMM${C1}`..-:::::::-..`${C2}MMMM-.
-    .:MMMM${C1}.:MMMMMMMMMMMMMMM:.${C2}MMMM:.
-   -MMM${C1}-M---MMMMMMMMMMMMMMMMMMM.${C2}MMM-
- `:MMM${C1}:MM`  :MMMM:....::-...-MMMM:${C2}MMM:`
- :MMM${C1}:MMM`  :MM:`  ``    ``  `:MMM:${C2}MMM:
-.MMM${C1}.MMMM`  :MM.  -MM.  .MM-  `MMMM.${C2}MMM.
-:MMM${C1}:MMMM`  :MM.  -MM-  .MM:  `MMMM-${C2}MMM:
-:MMM${C1}:MMMM`  :MM.  -MM-  .MM:  `MMMM:${C2}MMM:
-:MMM${C1}:MMMM`  :MM.  -MM-  .MM:  `MMMM-${C2}MMM:
-.MMM${C1}.MMMM`  :MM:--:MM:--:MM:  `MMMM.${C2}MMM.
- :MMM${C1}:MMM-  `-MMMMMMMMMMMM-`  -MMM-${C2}MMM:
-  :MMM${C1}:MMM:`                `:MMM:${C2}MMM:
-   .MMM${C1}.MMMM:--------------:MMMM.${C2}MMM.
-     '-MMMM${C1}.-MMMMMMMMMMMMMMM-.${C2}MMMM-'
-       '.-MMMM${C1}``--:::::--``${C2}MMMM-.'
-${C2}            '-MMMMMMMMMMMMM-'
-${C2}               ``-:::::-``
+%2             ...-:::::-...
+%2          .-MMMMMMMMMMMMMMM-.
+      .-MMMM%1`..-:::::::-..`%2MMMM-.
+    .:MMMM%1.:MMMMMMMMMMMMMMM:.%2MMMM:.
+   -MMM%1-M---MMMMMMMMMMMMMMMMMMM.%2MMM-
+ `:MMM%1:MM`  :MMMM:....::-...-MMMM:%2MMM:`
+ :MMM%1:MMM`  :MM:`  ``    ``  `:MMM:%2MMM:
+.MMM%1.MMMM`  :MM.  -MM.  .MM-  `MMMM.%2MMM.
+:MMM%1:MMMM`  :MM.  -MM-  .MM:  `MMMM-%2MMM:
+:MMM%1:MMMM`  :MM.  -MM-  .MM:  `MMMM:%2MMM:
+:MMM%1:MMMM`  :MM.  -MM-  .MM:  `MMMM-%2MMM:
+.MMM%1.MMMM`  :MM:--:MM:--:MM:  `MMMM.%2MMM.
+ :MMM%1:MMM-  `-MMMMMMMMMMMM-`  -MMM-%2MMM:
+  :MMM%1:MMM:`                `:MMM:%2MMM:
+   .MMM%1.MMMM:--------------:MMMM.%2MMM.
+     '-MMMM%1.-MMMMMMMMMMMMMMM-.%2MMMM-'
+       '.-MMMM%1``--:::::--``%2MMMM-.'
+%2            '-MMMMMMMMMMMMM-'
+%2               ``-:::::-``

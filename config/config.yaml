@@ -1,7 +1,16 @@
 distro_ascii: auto
-fetch_script: auto
-show_fs_type: true
-hidden_partitions: []
-# Hiding squashfs prevents snaps from showing up
-hidden_filesystems: ["squashfs"]
-hidden_gpus: []
+modules:
+  - name: distribution
+  - name: hostname
+  - name: kernel
+  - name: packages
+  - name: shell
+  - name: init
+  - name: motherboard
+  - name: cpu
+  - name: gpus
+  - name: memory
+  - name: partitions
+  - name: local_ip
+  - name: de_wm
+  - name: monitors

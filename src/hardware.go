@@ -1,14 +1,20 @@
 package main
 
 import (
-	"fmt"
-	"github.com/go-gl/glfw/v3.3/glfw"
-	"github.com/jackmordaunt/ghw"
 	"os"
 	"os/exec"
 	"slices"
 	"strings"
+
+	"github.com/go-gl/glfw/v3.3/glfw"
+	"github.com/jackmordaunt/ghw"
 )
+
+type Monitor struct {
+	Width       int
+	Height      int
+	RefreshRate int
+}
 
 func GetCPUModel() string {
 	cpu, err := ghw.CPU()
@@ -29,7 +35,7 @@ func GetCPUThreads() int {
 	return int(cpu.TotalThreads)
 }
 
-func GetGPUModels() (ret []string) {
+func GetGPUModels(hiddenGPUS []int) (ret []string) {
 	cmd := exec.Command("sh", "-c", "lspci -v -m | grep 'VGA' -A6 | grep '^Device:'")
 	bytes, err := cmd.Output()
 	if err != nil {
@@ -37,7 +43,7 @@ func GetGPUModels() (ret []string) {
 	}
 
 	for i, gpu := range strings.Split(string(bytes), "\n") {
-		if slices.Contains(config.HiddenGPUS, i+1) {
+		if slices.Contains(hiddenGPUS, i+1) {
 			continue
 		}
 		if gpu == "" {
@@ -58,16 +64,22 @@ func GetMotherboardModel() string {
 	return strings.TrimSpace(string(bytes))
 }
 
-func GetMonitorResolution() []string {
-	var monitors []string
+func GetMonitors() []Monitor {
+	var monitors []Monitor
 	if GetDisplayProtocol() != "" {
 		err := glfw.Init()
 		if err != nil {
 			panic(err)
 		}
+
 		for _, monitor := range glfw.GetMonitors() {
 			mode := monitor.GetVideoMode()
-			monitors = append(monitors, fmt.Sprintf("%dx%d %dHz", mode.Width, mode.Height, mode.RefreshRate))
+
+			monitors = append(monitors, Monitor{
+				Width:       mode.Width,
+				Height:      mode.Height,
+				RefreshRate: mode.RefreshRate,
+			})
 		}
 		defer glfw.Terminate()
 	}

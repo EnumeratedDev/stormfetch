@@ -5,6 +5,7 @@ import (
 	"os/exec"
 	"path"
 	"strings"
+	"syscall"
 
 	"github.com/mitchellh/go-ps"
 )
@@ -99,9 +100,46 @@ func GetDistroAsciiArt() string {
 	}
 }
 
+func GetArch() string {
+	uname := syscall.Utsname{}
+	err := syscall.Uname(&uname)
+	if err != nil {
+		return "unknown"
+	}
+
+	var byteString [65]byte
+	var indexLength int
+	for ; uname.Machine[indexLength] != 0; indexLength++ {
+		byteString[indexLength] = uint8(uname.Machine[indexLength])
+	}
+	return string(byteString[:indexLength])
+}
+
+func GetKernel() (string, string) {
+	uname := syscall.Utsname{}
+	err := syscall.Uname(&uname)
+	if err != nil {
+		return "unknown", "unknown"
+	}
+
+	var kernelNameByteString [65]byte
+	var kernelNameLength int
+	for ; uname.Sysname[kernelNameLength] != 0; kernelNameLength++ {
+		kernelNameByteString[kernelNameLength] = uint8(uname.Sysname[kernelNameLength])
+	}
+
+	var kernelReleaseByteString [65]byte
+	var kernelReleaseLength int
+	for ; uname.Release[kernelReleaseLength] != 0; kernelReleaseLength++ {
+		kernelReleaseByteString[kernelReleaseLength] = uint8(uname.Release[kernelReleaseLength])
+	}
+
+	return string(kernelNameByteString[:kernelNameLength]), string(kernelReleaseByteString[:kernelReleaseLength])
+}
+
 func GetInitSystem() string {
 	runCommand := func(command string) string {
-		cmd := exec.Command("/bin/bash", "-c", command)
+		cmd := exec.Command("/bin/sh", "-c", command)
 		workdir, err := os.Getwd()
 		if err != nil {
 			return ""

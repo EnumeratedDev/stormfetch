@@ -95,7 +95,7 @@ func GetMountedPartitions(hiddenPartitions, hiddenFilesystems []string) []partit
 
 		// Set partition label if available
 		if value, ok := labels[p.Device]; ok {
-			p.Label = value
+			p.Label = strings.ReplaceAll(value, "\\x20", " ")
 		}
 
 		// Get partition total, used and free space
