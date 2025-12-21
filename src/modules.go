@@ -301,11 +301,27 @@ func initializeModuleMap() {
 	RegisterModule(localIpModule)
 
 	// DEWM module
-	dewmModule := StormfetchModule{stormfetchModuleConfig: stormfetchModuleConfig{Name: "de_wm", Format: "%3DE/WM: %4$DE_WM ($DISPLAY_PROTOCOL)"}, Execute: func(sm StormfetchModule) string {
+	dewmModule := StormfetchModule{stormfetchModuleConfig: stormfetchModuleConfig{Name: "de_wm", Format: "%3${DEWM_TYPE}: %4${DEWM_NAME} ${DEWM_VERSION} ($DISPLAY_PROTOCOL)"}, Execute: func(sm StormfetchModule) string {
+		// Return empty string if currently in TTY
+		if os.Getenv("XDG_SESSION_TYPE") == "" || os.Getenv("XDG_SESSION_TYPE") == "tty" {
+			return ""
+		}
+
+		dewm := GetDEWM()
+
+		// Return empty string if can't detect DE/WM
+		if dewm.Name == "Unknown" {
+			return ""
+		}
+
 		return os.Expand(sm.Format, func(s string) string {
 			switch s {
-			case "DE_WM":
-				return GetDEWM()
+			case "DEWM_NAME":
+				return dewm.Name
+			case "DEWM_TYPE":
+				return dewm.Type
+			case "DEWM_VERSION":
+				return dewm.Version
 			case "DISPLAY_PROTOCOL":
 				return GetDisplayProtocol()
 			default:

@@ -12,6 +12,12 @@ import (
 	"github.com/mitchellh/go-ps"
 )
 
+type DEWM struct {
+	Name    string
+	Type    string
+	Version string
+}
+
 func GetShell() string {
 	runCommand := func(command string) string {
 		cmd := exec.Command("/bin/sh", "-c", command)
@@ -60,7 +66,7 @@ func GetShell() string {
 	}
 }
 
-func GetDEWM() string {
+func GetDEWM() DEWM {
 	processes, err := ps.Processes()
 	if err != nil {
 		log.Fatalf("Error: could not get processes: %s", err)
@@ -88,35 +94,100 @@ func GetDEWM() string {
 		return strings.TrimSpace(string(out))
 	}
 	if processExists("plasmashell") {
-		return "KDE Plasma " + runCommand("plasmashell --version | awk '{print $2}'")
-	} else if processExists("gnome-session") {
-		return "Gnome " + runCommand("gnome-shell --version | awk '{print $3}'")
-	} else if processExists("xfce4-session") {
-		return "XFCE " + runCommand("xfce4-session --version | head -n1 | awk '{print $2}'")
-	} else if processExists("cinnamon") {
-		return "Cinnamon " + runCommand("cinnamon --version | awk '{print $3}'")
-	} else if processExists("mate-panel") {
-		return "MATE " + runCommand("mate-about --version | awk '{print $4}'")
-	} else if processExists("lxsession") {
-		return "LXDE"
-	} else if processExists("lxqt-session") {
-		return "LXQt " + runCommand("lxqt-session --version | head -n1 | awk '{print $2}'")
-	} else if processExists("i3") || processExists("i3-with-shmlog") {
-		return "i3 " + runCommand("i3 --version | awk '{print $3}'")
-	} else if processExists("sway") {
-		if runCommand("sway --version | awk '{print $1}'") == "swayfx" {
-			return "SwayFX " + runCommand("sway --version | awk '{print $3}'")
-		} else {
-			return "Sway " + runCommand("sway --version | awk '{print $3}'")
+		dewm := DEWM{
+			Name:    "KDE Plasma",
+			Type:    "DE",
+			Version: runCommand("plasmashell --version | awk '{print $2}'"),
 		}
+		return dewm
+	} else if processExists("gnome-session") {
+		dewm := DEWM{
+			Name:    "Gnome",
+			Type:    "DE",
+			Version: runCommand("gnome-shell --version | awk '{print $3}'"),
+		}
+		return dewm
+	} else if processExists("xfce4-session") {
+		dewm := DEWM{
+			Name:    "XFCE",
+			Type:    "DE",
+			Version: runCommand("xfce4-session --version | head -n1 | awk '{print $2}'"),
+		}
+		return dewm
+	} else if processExists("cinnamon") {
+		dewm := DEWM{
+			Name:    "Cinnamon",
+			Type:    "DE",
+			Version: runCommand("cinnamon --version | awk '{print $3}'"),
+		}
+		return dewm
+	} else if processExists("mate-panel") {
+		dewm := DEWM{
+			Name:    "MATE",
+			Type:    "DE",
+			Version: runCommand("mate-about --version | awk '{print $4}'"),
+		}
+		return dewm
+	} else if processExists("lxsession") {
+		dewm := DEWM{
+			Name:    "LXDE",
+			Type:    "DE",
+			Version: "",
+		}
+		return dewm
+	} else if processExists("lxqt-session") {
+		dewm := DEWM{
+			Name:    "LXQt",
+			Type:    "DE",
+			Version: runCommand("lxqt-session --version | head -n1 | awk '{print $2}'"),
+		}
+		return dewm
+	} else if processExists("i3") || processExists("i3-with-shmlog") {
+		dewm := DEWM{
+			Name:    "i3",
+			Type:    "WM",
+			Version: runCommand("i3 --version | awk '{print $3}'"),
+		}
+		return dewm
+	} else if processExists("sway") {
+		dewm := DEWM{
+			Name:    "Sway",
+			Type:    "WM",
+			Version: runCommand("sway --version | awk '{print $3}'"),
+		}
+		if runCommand("sway --version | awk '{print $1}'") == "swayfx" {
+			dewm.Name = "SwayFX"
+		} else {
+			dewm.Name = "Sway"
+		}
+		return dewm
 	} else if processExists("bspwm") {
-		return "Bspwm " + runCommand("bspwm -v")
+		dewm := DEWM{
+			Name:    "Bspwm",
+			Type:    "WM",
+			Version: runCommand("bspwm -v"),
+		}
+		return dewm
 	} else if processExists("Hyprland") {
-		return "Hyprland " + runCommand("hyprctl version | sed -n 3p | awk '{print $2}' | tr -d 'v,'")
+		dewm := DEWM{
+			Name:    "Hyprland",
+			Type:    "WM",
+			Version: runCommand("hyprctl version | sed -n 3p | awk '{print $2}' | tr -d 'v,'"),
+		}
+		return dewm
 	} else if processExists("icewm-session") {
-		return "IceWM " + runCommand("icewm --version | awk '{print $2}'")
+		dewm := DEWM{
+			Name:    "IceWM",
+			Type:    "WM",
+			Version: runCommand("icewm --version | awk '{print $2}'"),
+		}
+		return dewm
 	}
-	return ""
+	return DEWM{
+		Name:    "Unknown",
+		Type:    "Unknown",
+		Version: "Unknown",
+	}
 }
 
 func GetDisplayProtocol() string {
