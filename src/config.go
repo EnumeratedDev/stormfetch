@@ -28,8 +28,8 @@ func readConfig() {
 	// Find valid config directory
 	if _, err := os.Stat(path.Join(userConfigDir, "stormfetch/config.yaml")); err == nil {
 		configPath = path.Join(userConfigDir, "stormfetch/config.yaml")
-	} else if _, err := os.Stat(path.Join(systemConfigDir, "stormfetch/config.yaml")); err == nil {
-		configPath = path.Join(systemConfigDir, "stormfetch/config.yaml")
+	} else if _, err := os.Stat(path.Join(SystemConfigDir, "stormfetch/config.yaml")); err == nil {
+		configPath = path.Join(SystemConfigDir, "stormfetch/config.yaml")
 	} else {
 		log.Fatalf("Config file not found: %s", err.Error())
 	}

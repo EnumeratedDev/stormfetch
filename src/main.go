@@ -9,9 +9,11 @@ import (
 )
 
 // Build-time variables
-var systemConfigDir = "/etc/"
+var StormfetchVersion = "dev"
+var SystemConfigDir = "/etc/"
 
 // Flag variables
+var ShowVersion = false
 var ShowModuleTimeTaken = false
 
 var configPath = ""
@@ -24,13 +26,19 @@ func main() {
 }
 
 func parseFlags() {
+	flag.BoolVar(&ShowVersion, "version", false, "Show Stormfetch version")
+	flag.BoolVar(&ShowModuleTimeTaken, "time-taken", false, "Show time taken to execute each module")
 	flag.StringVar(&config.Ascii, "ascii", config.Ascii, "Set distro ascii")
 	flag.StringVar(&config.DistroName, "distro-name", config.DistroName, "Set distro name")
-	flag.BoolVar(&ShowModuleTimeTaken, "time-taken", false, "Show time taken to execute each module")
 	flag.Parse()
 }
 
 func run() {
+	if ShowVersion {
+		fmt.Printf("Stormfetch version %s\n", StormfetchVersion)
+		return
+	}
+
 	// Fetch ascii art and remove header
 	asciiArt := GetDistroAsciiArt()
 	asciiArtHeader := ""

@@ -73,8 +73,8 @@ func GetDistroAsciiArt() string {
 	}
 	userConfDir, err := os.UserConfigDir()
 	if err != nil {
-		if _, err := os.Stat(path.Join(systemConfigDir, "stormfetch/ascii/", id)); err == nil {
-			bytes, err := os.ReadFile(path.Join(systemConfigDir, "stormfetch/ascii/", id))
+		if _, err := os.Stat(path.Join(SystemConfigDir, "stormfetch/ascii/", id)); err == nil {
+			bytes, err := os.ReadFile(path.Join(SystemConfigDir, "stormfetch/ascii/", id))
 			if err != nil {
 				return defaultAscii
 			}
@@ -89,8 +89,8 @@ func GetDistroAsciiArt() string {
 			return defaultAscii
 		}
 		return string(bytes)
-	} else if _, err := os.Stat(path.Join(systemConfigDir, "stormfetch/ascii/", id)); err == nil {
-		bytes, err := os.ReadFile(path.Join(systemConfigDir, "stormfetch/ascii/", id))
+	} else if _, err := os.Stat(path.Join(SystemConfigDir, "stormfetch/ascii/", id)); err == nil {
+		bytes, err := os.ReadFile(path.Join(SystemConfigDir, "stormfetch/ascii/", id))
 		if err != nil {
 			return defaultAscii
 		}
