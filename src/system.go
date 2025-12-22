@@ -63,7 +63,7 @@ func GetDistroAsciiArt() string {
   //   \ \
  (|     | )
 /'\_   _/'\
-\___)=(___/ `
+\___)=(___/`
 
 	// Get ascii name to use
 	var asciiName string
@@ -80,7 +80,7 @@ func GetDistroAsciiArt() string {
 	if err == nil {
 		if _, err := os.Stat(path.Join(userConfDir, "stormfetch/ascii/", asciiName)); err == nil {
 			if bytes, err := os.ReadFile(path.Join(userConfDir, "stormfetch/ascii/", asciiName)); err == nil {
-				return string(bytes)
+				return strings.TrimRight(string(bytes), "\n")
 			}
 		}
 	}
@@ -88,7 +88,7 @@ func GetDistroAsciiArt() string {
 	// Check for ascii art in system config directory
 	if _, err := os.Stat(path.Join(SystemConfigDir, "stormfetch/ascii/", asciiName)); err == nil {
 		if bytes, err := os.ReadFile(path.Join(SystemConfigDir, "stormfetch/ascii/", asciiName)); err == nil {
-			return string(bytes)
+			return strings.TrimRight(string(bytes), "\n")
 		}
 	}
 
