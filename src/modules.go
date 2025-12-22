@@ -130,10 +130,16 @@ func initializeModuleMap() {
 
 	// Init system module
 	initSystemModule := StormfetchModule{stormfetchModuleConfig: stormfetchModuleConfig{Name: "init_system", Format: "%3Init: %4$INIT"}, Execute: func(sm StormfetchModule) string {
+		initSystem := GetInitSystem()
+
+		if initSystem == "" {
+			return ""
+		}
+
 		return os.Expand(sm.Format, func(s string) string {
 			switch s {
 			case "INIT":
-				return GetInitSystem()
+				return initSystem
 			default:
 				return ""
 			}

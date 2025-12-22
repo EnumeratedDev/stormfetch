@@ -138,6 +138,11 @@ func GetInitSystem() string {
 		return ""
 	}
 
+	// Return if init system can't be found
+	if process == nil {
+		return ""
+	}
+
 	// Special cases
 	// OpenRC check
 	if _, err := os.Stat("/usr/sbin/openrc"); err == nil {
