@@ -91,6 +91,9 @@ func run() {
 		text := module.Execute(module)
 		end := time.Now().UnixMilli()
 
+		// Insert default color at the start of the module's text
+		text = colorMap[0] + text
+
 		// Show time taken
 		if ShowModuleTimeTaken {
 			fmt.Printf("Module '%s' took %d milliseconds\n", module.Name, end-start)
