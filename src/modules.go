@@ -100,10 +100,12 @@ func initializeModuleMap() {
 
 	// Packages module
 	packagesModule := StormfetchModule{stormfetchModuleConfig: stormfetchModuleConfig{Name: "packages", Format: "%3Packages: %4$PACKAGES"}, Execute: func(sm StormfetchModule) string {
+		packages := GetInstalledPackages()
+
 		return os.Expand(sm.Format, func(s string) string {
 			switch s {
 			case "PACKAGES":
-				return GetInstalledPackages()
+				return packages
 			default:
 				return ""
 			}
@@ -113,10 +115,12 @@ func initializeModuleMap() {
 
 	// Shell module
 	shellModule := StormfetchModule{stormfetchModuleConfig: stormfetchModuleConfig{Name: "shell", Format: "%3Shell: %4$SHELL"}, Execute: func(sm StormfetchModule) string {
+		shell := GetShell()
+
 		return os.Expand(sm.Format, func(s string) string {
 			switch s {
 			case "SHELL":
-				return GetShell()
+				return shell
 			default:
 				return ""
 			}
@@ -139,10 +143,12 @@ func initializeModuleMap() {
 
 	// Libc module
 	libcModule := StormfetchModule{stormfetchModuleConfig: stormfetchModuleConfig{Name: "libc", Format: "%3Libc: %4$LIBC"}, Execute: func(sm StormfetchModule) string {
+		libc := GetLibc()
+
 		return os.Expand(sm.Format, func(s string) string {
 			switch s {
 			case "LIBC":
-				return GetLibc()
+				return libc
 			default:
 				return ""
 			}
@@ -330,10 +336,12 @@ func initializeModuleMap() {
 
 	// Local IP module
 	localIpModule := StormfetchModule{stormfetchModuleConfig: stormfetchModuleConfig{Name: "local_ip", Format: "%3Local IP: %4$LOCAL_IP"}, Execute: func(sm StormfetchModule) string {
+		localIP := GetLocalIP()
+
 		return os.Expand(sm.Format, func(s string) string {
 			switch s {
 			case "LOCAL_IP":
-				return GetLocalIP()
+				return localIP
 			default:
 				return ""
 			}
@@ -349,6 +357,7 @@ func initializeModuleMap() {
 		}
 
 		dewm := GetDEWM()
+		displayProtocol := GetDisplayProtocol()
 
 		// Return empty string if can't detect DE/WM
 		if dewm.Name == "Unknown" {
@@ -364,7 +373,7 @@ func initializeModuleMap() {
 			case "DEWM_VERSION":
 				return dewm.Version
 			case "DISPLAY_PROTOCOL":
-				return GetDisplayProtocol()
+				return displayProtocol
 			default:
 				return ""
 			}
