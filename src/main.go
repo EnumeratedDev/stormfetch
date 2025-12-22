@@ -107,7 +107,7 @@ func run() {
 		}
 
 		// Continue if text length is 0
-		if len(textNoColor) == 0 {
+		if len(textNoColor)-len(colorMap[0]) == 0 {
 			continue
 		}
 
