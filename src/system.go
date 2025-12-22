@@ -138,21 +138,6 @@ func GetKernel() (string, string) {
 }
 
 func GetInitSystem() string {
-	runCommand := func(command string) string {
-		cmd := exec.Command("/bin/sh", "-c", command)
-		workdir, err := os.Getwd()
-		if err != nil {
-			return ""
-		}
-		cmd.Dir = workdir
-		cmd.Env = os.Environ()
-		out, err := cmd.Output()
-		if err != nil {
-			return ""
-		}
-		return strings.TrimSpace(string(out))
-	}
-
 	process, err := ps.FindProcess(1)
 	if err != nil {
 		return ""
@@ -161,19 +146,19 @@ func GetInitSystem() string {
 	// Special cases
 	// OpenRC check
 	if _, err := os.Stat("/usr/sbin/openrc"); err == nil {
-		return "OpenRC " + runCommand("openrc --version | awk '{print $3}'")
+		return "OpenRC " + runCommand("openrc --version | awk '{print $3}'", "/bin/sh")
 	}
 
 	// Default PID 1 process name checking
 	switch process.Executable() {
 	case "systemd":
-		return "Systemd " + runCommand("systemctl --version | head -n1 | awk '{print $2}'")
+		return "Systemd " + runCommand("systemctl --version | head -n1 | awk '{print $2}'", "/bin/sh")
 	case "runit":
 		return "Runit"
 	case "dinit":
-		return "Dinit " + runCommand("dinit --version | head -n1 | awk '{print substr($3, 1, length($3)-1)}'")
+		return "Dinit " + runCommand("dinit --version | head -n1 | awk '{print substr($3, 1, length($3)-1)}'", "/bin/sh")
 	case "enit":
-		return "Enit " + runCommand("enit --version | awk '{print $3}'")
+		return "Enit " + runCommand("enit --version | awk '{print $3}'", "/bin/sh")
 	default:
 		return process.Executable()
 	}

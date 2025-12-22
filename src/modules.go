@@ -399,4 +399,37 @@ func initializeModuleMap() {
 		return builder.String()
 	}}
 	RegisterModule(monitorsModule)
+
+	// Custom module
+	customModule := StormfetchModule{stormfetchModuleConfig: stormfetchModuleConfig{Name: "custom"}, Execute: func(sm StormfetchModule) string {
+		shell, _ := sm.GetData("shell", "/bin/sh")
+		commandList, _ := sm.GetData("commands", make([]any, 0))
+
+		// Exeucte all commands
+		commandOutput := make(map[int]string)
+		for i, value := range commandList.([]any) {
+			command, ok := value.(string)
+			if !ok {
+				continue
+			}
+
+			commandOutput[i+1] = runCommand(command, shell.(string))
+		}
+
+		return os.Expand(sm.Format, func(s string) string {
+			if len(s) <= 4 || !strings.HasPrefix(s, "CMD_") {
+				return ""
+			}
+
+			commandIndexStr := strings.Split(s, "CMD_")[1]
+
+			commandIndex, err := strconv.Atoi(commandIndexStr)
+			if err != nil {
+				return ""
+			}
+
+			return commandOutput[commandIndex]
+		})
+	}}
+	RegisterModule(customModule)
 }

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"os/exec"
 	"regexp"
 	"strings"
 )
@@ -55,4 +56,19 @@ func ReadKeyValueFile(filepath string) (map[string]string, error) {
 		}
 	}
 	return ret, nil
+}
+
+func runCommand(command string, shell string) string {
+	cmd := exec.Command(shell, "-c", command)
+	workdir, err := os.Getwd()
+	if err != nil {
+		return ""
+	}
+	cmd.Dir = workdir
+	cmd.Env = os.Environ()
+	out, err := cmd.Output()
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(out))
 }
