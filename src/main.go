@@ -31,7 +31,6 @@ func parseFlags() {
 	flag.StringVar(&ConfigPath, "config", "", "Use the specified config file")
 	flag.BoolVar(&ShowModuleTimeTaken, "time-taken", false, "Show time taken to execute each module")
 	flag.StringVar(&Ascii, "ascii", "", "Set distro ascii")
-	flag.StringVar(&config.DistroName, "distro-name", config.DistroName, "Set distro name")
 	flag.Parse()
 }
 

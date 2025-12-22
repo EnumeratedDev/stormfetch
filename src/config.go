@@ -10,7 +10,6 @@ import (
 
 type StormfetchConfig struct {
 	Ascii            string                   `yaml:"distro_ascii"`
-	DistroName       string                   `yaml:"distro_name"`
 	Modules          []stormfetchModuleConfig `yaml:"modules"`
 	AnsiiColors      []int                    `yaml:"ansii_colors"`
 	ForceConfigAnsii bool                     `yaml:"force_config_ansii"`

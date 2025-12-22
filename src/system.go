@@ -22,10 +22,6 @@ func GetDistroInfo() DistroInfo {
 		LongName:  "Unknown",
 		ShortName: "Unknown",
 	}
-	if strings.TrimSpace(config.DistroName) != "" {
-		info.LongName = strings.TrimSpace(config.DistroName)
-		info.ShortName = strings.TrimSpace(config.DistroName)
-	}
 
 	// Detect release file location
 	var releaseFile string
@@ -39,20 +35,23 @@ func GetDistroInfo() DistroInfo {
 		return info
 	}
 
+	// Read release file
 	releaseMap, err := ReadKeyValueFile(releaseFile)
 	if err != nil {
 		return info
 	}
 
+	// Set struct fields
 	if id, ok := releaseMap["ID"]; ok {
 		info.ID = id
 	}
-	if longName, ok := releaseMap["PRETTY_NAME"]; ok && info.LongName == "Unknown" {
+	if longName, ok := releaseMap["PRETTY_NAME"]; ok {
 		info.LongName = longName
 	}
-	if shortName, ok := releaseMap["NAME"]; ok && info.ShortName == "Unknown" {
+	if shortName, ok := releaseMap["NAME"]; ok {
 		info.ShortName = shortName
 	}
+
 	return info
 }
 
