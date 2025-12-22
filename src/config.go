@@ -22,20 +22,22 @@ var config = StormfetchConfig{
 }
 
 func readConfig() {
-	// Get home directory
-	userConfigDir, _ := os.UserConfigDir()
+	if ConfigPath == "" {
+		// Get home directory
+		userConfigDir, _ := os.UserConfigDir()
 
-	// Find valid config directory
-	if _, err := os.Stat(path.Join(userConfigDir, "stormfetch/config.yml")); err == nil {
-		configPath = path.Join(userConfigDir, "stormfetch/config.yml")
-	} else if _, err := os.Stat(path.Join(SystemConfigDir, "stormfetch/config.yml")); err == nil {
-		configPath = path.Join(SystemConfigDir, "stormfetch/config.yml")
-	} else {
-		log.Fatalf("Config file not found: %s", err.Error())
+		// Find valid config directory
+		if _, err := os.Stat(path.Join(userConfigDir, "stormfetch/config.yml")); err == nil {
+			ConfigPath = path.Join(userConfigDir, "stormfetch/config.yml")
+		} else if _, err := os.Stat(path.Join(SystemConfigDir, "stormfetch/config.yml")); err == nil {
+			ConfigPath = path.Join(SystemConfigDir, "stormfetch/config.yml")
+		} else {
+			log.Fatalf("Config file not found: %s", err.Error())
+		}
 	}
 
 	// Parse config
-	bytes, err := os.ReadFile(configPath)
+	bytes, err := os.ReadFile(ConfigPath)
 	if err != nil {
 		log.Fatal(err)
 	}

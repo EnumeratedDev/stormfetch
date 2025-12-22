@@ -15,19 +15,19 @@ var SystemConfigDir = "/etc/"
 
 // Flag variables
 var ShowVersion = false
+var ConfigPath = ""
 var ShowModuleTimeTaken = false
 
-var configPath = ""
-
 func main() {
-	readConfig()
 	parseFlags()
+	readConfig()
 	initializeModuleMap()
 	run()
 }
 
 func parseFlags() {
 	flag.BoolVar(&ShowVersion, "version", false, "Show Stormfetch version")
+	flag.StringVar(&ConfigPath, "config", "", "Use the specified config file")
 	flag.BoolVar(&ShowModuleTimeTaken, "time-taken", false, "Show time taken to execute each module")
 	flag.StringVar(&config.Ascii, "ascii", config.Ascii, "Set distro ascii")
 	flag.StringVar(&config.DistroName, "distro-name", config.DistroName, "Set distro name")
