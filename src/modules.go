@@ -256,6 +256,10 @@ func initializeModuleMap() {
 	memoryModule := StormfetchModule{stormfetchModuleConfig: stormfetchModuleConfig{Name: "memory", Format: "%3Memory: %4$MEM_USED MiB / $MEM_TOTAL MiB"}, Execute: func(sm StormfetchModule) string {
 		memoryInfo := GetMemoryInfo()
 
+		if memoryInfo == nil {
+			return ""
+		}
+
 		return os.Expand(sm.Format, func(s string) string {
 			switch s {
 			case "MEM_TOTAL":
