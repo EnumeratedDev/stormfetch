@@ -19,7 +19,8 @@ Stormfetch is still in beta, so distro compatibility is limited. If you would li
 ```
 make SYSCONFDIR=/etc
 ```
-- Run the following command to install stormfetch into your system. You may also append a DESTDIR variable at the end of this line if you wish to install in a different location
+- Run the following command to install stormfetch into your system. You may also append a DESTDIR variable at the end of this line if you wish to install in a different root directory
 ```
-make install PREFIX=/usr SYSCONFDIR=/etc
+make install
+make install-config SYSCONFDIR=/etc
 ```
