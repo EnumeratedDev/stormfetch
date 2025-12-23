@@ -124,7 +124,11 @@ func GetMotherboardModel() string {
 	if err != nil {
 		return ""
 	}
-	return strings.TrimSpace(string(bytes))
+
+	// Remove duplicate whitespaces
+	ret := strings.Join(strings.Fields(string(bytes)), " ")
+
+	return ret
 }
 
 func GetMonitors() []Monitor {
