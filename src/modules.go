@@ -200,8 +200,6 @@ func initializeModuleMap() {
 				switch s {
 				case "CPU_NUM":
 					return strconv.Itoa(i + 1)
-				case "CPU_VENDOR":
-					return cpu.Vendor
 				case "CPU_MODEL":
 					return cpu.Model
 				case "CPU_CORES":

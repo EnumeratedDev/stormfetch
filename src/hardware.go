@@ -10,7 +10,6 @@ import (
 )
 
 type CPU struct {
-	Vendor  string
 	Model   string
 	Cores   int
 	Threads int
@@ -44,9 +43,23 @@ func GetCPUs(hiddenCPUs []int) []CPU {
 			continue
 		}
 
+		// Remove unnecessary information from the CPU model
+		model := cpu.Model
+		stringsToRemove := []string{
+			" CPU", " FPU", " APU", " Processor",
+			" Dual-Core", " Quad-Core", " Six-Core", " Eight-Core", " Ten-Core",
+			" 2-Core", " 4-Core", " 6-Core", " 8-Core", " 10-Core", " 12-Core", " 14-Core", " 16-Core",
+		}
+		for _, str := range stringsToRemove {
+			model = strings.ReplaceAll(model, str, "")
+		}
+		model = strings.Split(model, "w/ Radeon ")[0]
+		model = strings.Split(model, "with Radeon ")[0]
+		model = strings.Split(model, "@")[0]
+		model = strings.TrimSpace(model)
+
 		ret = append(ret, CPU{
-			Vendor:  cpu.Vendor,
-			Model:   cpu.Model,
+			Model:   model,
 			Cores:   int(cpu.NumCores),
 			Threads: int(cpu.NumThreads),
 		})
