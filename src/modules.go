@@ -221,7 +221,7 @@ func initializeModuleMap() {
 	RegisterModule(cpusModule)
 
 	// GPUs module
-	gpusModule := StormfetchModule{stormfetchModuleConfig: stormfetchModuleConfig{Name: "gpus", Format: "%3GPU: %4$GPU_MODEL"}, Execute: func(sm StormfetchModule) string {
+	gpusModule := StormfetchModule{stormfetchModuleConfig: stormfetchModuleConfig{Name: "gpus", Format: "%3GPU: %4$GPU_VENDOR $GPU_SUBSYSTEM"}, Execute: func(sm StormfetchModule) string {
 		hiddenGPUsInterface, _ := sm.GetData("hidden_gpus", make([]any, 0))
 
 		// Convert interface slices to string slices
@@ -234,12 +234,22 @@ func initializeModuleMap() {
 		gpus := GetGPUModels(hiddenGPUs)
 
 		for i, gpu := range gpus {
+			vram := strconv.FormatInt(gpu.VRAM, 10)
+
 			expanded := os.Expand(sm.Format, func(s string) string {
 				switch s {
 				case "GPU_NUM":
 					return strconv.Itoa(i + 1)
-				case "GPU_MODEL":
-					return gpu
+				case "GPU_VENDOR":
+					return gpu.Vendor
+				case "GPU_PRODUCT":
+					return gpu.Product
+				case "GPU_SUBSYSTEM":
+					return gpu.Subsystem
+				case "GPU_DRIVER":
+					return gpu.Driver
+				case "GPU_VRAM":
+					return vram
 				default:
 					return ""
 				}

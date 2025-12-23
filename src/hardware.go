@@ -2,7 +2,6 @@ package main
 
 import (
 	"os"
-	"os/exec"
 	"slices"
 	"strings"
 
@@ -15,6 +14,15 @@ type CPU struct {
 	Model   string
 	Cores   int
 	Threads int
+}
+
+type GPU struct {
+	PCIAddress string
+	Vendor     string
+	Product    string
+	Subsystem  string
+	Driver     string
+	VRAM       int64
 }
 
 type Monitor struct {
@@ -47,22 +55,46 @@ func GetCPUs(hiddenCPUs []int) []CPU {
 	return ret
 }
 
-func GetGPUModels(hiddenGPUS []int) (ret []string) {
-	cmd := exec.Command("sh", "-c", "lspci -v -m | grep 'VGA' -A6 | grep '^Device:'")
-	bytes, err := cmd.Output()
+func GetGPUModels(hiddenGPUs []int) []GPU {
+	ret := make([]GPU, 0)
+
+	// Set stderr to nil to avoid warnings
+	stderr := os.Stderr
+	os.Stderr = nil
+
+	gpus, err := ghw.GPU()
 	if err != nil {
-		return nil
+		return ret
 	}
 
-	for i, gpu := range strings.Split(string(bytes), "\n") {
-		if slices.Contains(hiddenGPUS, i+1) {
+	// Restore stderr
+	os.Stderr = stderr
+
+	for i, gpu := range gpus.GraphicsCards {
+		if slices.Contains(hiddenGPUs, i+1) {
 			continue
 		}
-		if gpu == "" {
-			continue
+
+		// Set alternative names for vendors
+		var vendor string
+		switch gpu.DeviceInfo.Vendor.ID {
+		case "1002":
+			vendor = "AMD"
+		case "10de":
+			vendor = "Nvidia"
+		case "8086":
+			vendor = "Intel"
+		default:
+			vendor = gpu.DeviceInfo.Vendor.Name
 		}
-		gpu = strings.TrimPrefix(strings.TrimSpace(gpu), "Device:\t")
-		ret = append(ret, gpu)
+
+		ret = append(ret, GPU{
+			PCIAddress: gpu.Address,
+			Vendor:     vendor,
+			Product:    gpu.DeviceInfo.Product.Name,
+			Subsystem:  gpu.DeviceInfo.Subsystem.Name,
+			Driver:     gpu.DeviceInfo.Driver,
+		})
 	}
 
 	return ret
