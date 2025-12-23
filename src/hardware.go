@@ -101,11 +101,17 @@ func GetGPUModels(hiddenGPUs []int) []GPU {
 			vendor = gpu.DeviceInfo.Vendor.Name
 		}
 
+		// Fallback subsystem name to product name
+		subsystem := gpu.DeviceInfo.Subsystem.Name
+		if subsystem == "" || subsystem == "unknown" {
+			subsystem = gpu.DeviceInfo.Product.Name
+		}
+
 		ret = append(ret, GPU{
 			PCIAddress: gpu.Address,
 			Vendor:     vendor,
 			Product:    gpu.DeviceInfo.Product.Name,
-			Subsystem:  gpu.DeviceInfo.Subsystem.Name,
+			Subsystem:  subsystem,
 			Driver:     gpu.DeviceInfo.Driver,
 		})
 	}
