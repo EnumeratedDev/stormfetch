@@ -232,8 +232,6 @@ func initializeModuleMap() {
 		gpus := GetGPUModels(hiddenGPUs)
 
 		for i, gpu := range gpus {
-			vram := strconv.FormatInt(gpu.VRAM, 10)
-
 			expanded := os.Expand(sm.Format, func(s string) string {
 				switch s {
 				case "GPU_NUM":
@@ -249,7 +247,7 @@ func initializeModuleMap() {
 				case "GPU_DRIVER":
 					return gpu.Driver
 				case "GPU_VRAM":
-					return vram
+					return gpu.VRAM
 				default:
 					return ""
 				}

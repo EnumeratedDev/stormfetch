@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/go-gl/glfw/v3.3/glfw"
@@ -23,7 +24,7 @@ type GPU struct {
 	Product    string
 	Subsystem  string
 	Driver     string
-	VRAM       int64
+	VRAM       string
 }
 
 type Monitor struct {
@@ -134,6 +135,14 @@ func GetGPUModels(hiddenGPUs []int) []GPU {
 			}
 		}
 
+		// Get VRAM
+		vram := "Unknown"
+		bytes, err := os.ReadFile("/sys/class/drm/card" + strconv.Itoa(gpu.Index) + "/device/mem_info_vram_total")
+		if err == nil {
+			vramUint, _ := strconv.ParseUint(strings.TrimSpace(string(bytes)), 10, 64)
+			vram = FormatBytes(vramUint)
+		}
+
 		ret = append(ret, GPU{
 			PCIAddress: gpu.Address,
 			Vendor:     vendor,
@@ -141,6 +150,7 @@ func GetGPUModels(hiddenGPUs []int) []GPU {
 			Product:    gpu.DeviceInfo.Product.Name,
 			Subsystem:  gpu.DeviceInfo.Subsystem.Name,
 			Driver:     gpu.DeviceInfo.Driver,
+			VRAM:       vram,
 		})
 	}
 
