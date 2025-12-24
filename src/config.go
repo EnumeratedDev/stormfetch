@@ -9,10 +9,11 @@ import (
 )
 
 type StormfetchConfig struct {
-	Ascii            string                   `yaml:"distro_ascii"`
-	Modules          []stormfetchModuleConfig `yaml:"modules"`
-	AnsiiColors      []int                    `yaml:"ansii_colors"`
-	ForceConfigAnsii bool                     `yaml:"force_config_ansii"`
+	Ascii                   string                   `yaml:"distro_ascii"`
+	DisableAmdgpuIdsWarning bool                     `yaml:"disable_amdgpu_ids_warning"`
+	Modules                 []stormfetchModuleConfig `yaml:"modules"`
+	AnsiiColors             []int                    `yaml:"ansii_colors"`
+	ForceConfigAnsii        bool                     `yaml:"force_config_ansii"`
 }
 
 var config = StormfetchConfig{

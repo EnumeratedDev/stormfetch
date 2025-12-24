@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"slices"
 	"strings"
@@ -18,6 +19,7 @@ type CPU struct {
 type GPU struct {
 	PCIAddress string
 	Vendor     string
+	Name       string
 	Product    string
 	Subsystem  string
 	Driver     string
@@ -101,17 +103,43 @@ func GetGPUModels(hiddenGPUs []int) []GPU {
 			vendor = gpu.DeviceInfo.Vendor.Name
 		}
 
-		// Fallback subsystem name to product name
-		subsystem := gpu.DeviceInfo.Subsystem.Name
-		if subsystem == "" || subsystem == "unknown" {
-			subsystem = gpu.DeviceInfo.Product.Name
+		// Set GPU name
+		name := ""
+
+		// Use GPU name from amdgpu.ids database
+		if vendor == "AMD" {
+			fetchedName, err := fetchAmdGpuName(gpu.DeviceInfo.Product.ID, gpu.DeviceInfo.Revision)
+			if err == nil && !config.DisableAmdgpuIdsWarning {
+				name = fetchedName
+			} else {
+				fmt.Println("Warning: could not fetch GPU name from amdgpu.ids database! Error: " + err.Error())
+				fmt.Println("         You can disable this warning in the configuration file")
+			}
+		}
+
+		if name == "" {
+			if gpu.DeviceInfo.Subsystem.Name == "" || gpu.DeviceInfo.Subsystem.Name == "unknown" {
+				// Set GPU name to product name
+				name = gpu.DeviceInfo.Product.Name
+			} else {
+				// Set GPU name to subsystem name
+				name = gpu.DeviceInfo.Subsystem.Name
+			}
+
+			// Use GPU name in brackets
+			leftBracket := strings.IndexByte(name, '[')
+			rightBracket := strings.IndexByte(name, ']')
+			if leftBracket != -1 && rightBracket != -1 {
+				name = name[leftBracket+1 : rightBracket]
+			}
 		}
 
 		ret = append(ret, GPU{
 			PCIAddress: gpu.Address,
 			Vendor:     vendor,
+			Name:       name,
 			Product:    gpu.DeviceInfo.Product.Name,
-			Subsystem:  subsystem,
+			Subsystem:  gpu.DeviceInfo.Subsystem.Name,
 			Driver:     gpu.DeviceInfo.Driver,
 		})
 	}

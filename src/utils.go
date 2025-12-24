@@ -5,6 +5,7 @@ import (
 	"math"
 	"os"
 	"os/exec"
+	"path"
 	"regexp"
 	"strings"
 )
@@ -56,6 +57,46 @@ func ReadKeyValueFile(filepath string) (map[string]string, error) {
 		}
 	}
 	return ret, nil
+}
+
+func fetchAmdGpuName(productId, revision string) (string, error) {
+	productId = strings.ToUpper(productId)
+	revision = strings.ToUpper(revision[2:])
+
+	// Get cache directory
+	cachedir, err := os.UserCacheDir()
+	if err != nil {
+		return "", err
+	}
+
+	// Ensure amdgpu.ids file exists and download it if it doesn't
+	if _, err := os.Stat(path.Join(cachedir, "amdgpu.ids")); err != nil {
+		cmd := exec.Command("curl", "-o", path.Join(cachedir, "amdgpu.ids"), "https://gitlab.freedesktop.org/mesa/libdrm/-/raw/main/data/amdgpu.ids")
+		err = cmd.Run()
+		if err != nil {
+			return "", fmt.Errorf("Could not fetch amdgpu.ids using curl")
+		}
+	}
+
+	// Read amdgpu.ids file
+	amdgpuIds, err := os.ReadFile(path.Join(cachedir, "amdgpu.ids"))
+	if err != nil {
+		return "", err
+	}
+
+	// Parse read data and find GPU
+	for _, line := range strings.Split(string(amdgpuIds), "\n") {
+		if len(line) < 2 || line[0] == '#' {
+			continue
+		}
+
+		fields := strings.Split(line, ",\t")
+		if fields[0] == productId && fields[1] == revision {
+			return strings.TrimPrefix(fields[2], "AMD "), nil
+		}
+	}
+
+	return "", nil
 }
 
 func runCommand(command string, shell string) string {
