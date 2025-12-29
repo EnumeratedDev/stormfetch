@@ -24,7 +24,8 @@ type GPU struct {
 	Product    string
 	Subsystem  string
 	Driver     string
-	VRAM       string
+	VramTotal  string
+	VramUsed   string
 }
 
 type Monitor struct {
@@ -136,11 +137,17 @@ func GetGPUModels(hiddenGPUs []int) []GPU {
 		}
 
 		// Get VRAM
-		vram := "Unknown"
+		vramTotal := "Unknown"
 		bytes, err := os.ReadFile("/sys/class/drm/card" + strconv.Itoa(gpu.Index) + "/device/mem_info_vram_total")
 		if err == nil {
 			vramUint, _ := strconv.ParseUint(strings.TrimSpace(string(bytes)), 10, 64)
-			vram = FormatBytes(vramUint)
+			vramTotal = FormatBytes(vramUint)
+		}
+		vramUsed := "Unknown"
+		bytes, err = os.ReadFile("/sys/class/drm/card" + strconv.Itoa(gpu.Index) + "/device/mem_info_vram_used")
+		if err == nil {
+			vramUint, _ := strconv.ParseUint(strings.TrimSpace(string(bytes)), 10, 64)
+			vramUsed = FormatBytes(vramUint)
 		}
 
 		ret = append(ret, GPU{
@@ -150,7 +157,8 @@ func GetGPUModels(hiddenGPUs []int) []GPU {
 			Product:    gpu.DeviceInfo.Product.Name,
 			Subsystem:  gpu.DeviceInfo.Subsystem.Name,
 			Driver:     gpu.DeviceInfo.Driver,
-			VRAM:       vram,
+			VramTotal:  vramTotal,
+			VramUsed:   vramUsed,
 		})
 	}
 

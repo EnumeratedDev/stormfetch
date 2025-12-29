@@ -246,8 +246,10 @@ func initializeModuleMap() {
 					return gpu.Subsystem
 				case "GPU_DRIVER":
 					return gpu.Driver
-				case "GPU_VRAM":
-					return gpu.VRAM
+				case "GPU_VRAM_TOTAL":
+					return gpu.VramTotal
+				case "GPU_VRAM_USED":
+					return gpu.VramUsed
 				default:
 					return ""
 				}
