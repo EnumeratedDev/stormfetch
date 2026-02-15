@@ -358,6 +358,11 @@ func initializeModuleMap() {
 	localIpModule := StormfetchModule{stormfetchModuleConfig: stormfetchModuleConfig{Name: "local_ip", Format: "%3Local IP: %4$LOCAL_IP"}, Execute: func(sm StormfetchModule) string {
 		localIP := GetLocalIP()
 
+		// Return empty string if local IP is unavailable
+		if localIP == "Unknown" {
+			return ""
+		}
+
 		return os.Expand(sm.Format, func(s string) string {
 			switch s {
 			case "LOCAL_IP":
