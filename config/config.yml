@@ -1,4 +1,5 @@
 distro_ascii: auto
+disable_amdgpu_ids_warning: false
 modules:
   - name: distribution
   - name: hostname

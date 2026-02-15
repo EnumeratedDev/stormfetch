@@ -24,3 +24,5 @@ make SYSCONFDIR=/etc
 make install
 make install-config SYSCONFDIR=/etc
 ```
+### Post installation
+- (Optional) Download `curl` from your package manager to fetch the amdgpu.ids database for AMD GPUs. It may be safely uninstalled after running stormfetch once with curl installed
