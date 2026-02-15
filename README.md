@@ -4,7 +4,7 @@
 
 ### Project Information
 Stormfetch is a program that can read your system's information and display it in the terminal along with the ASCII art of the Linux distribution you are running.
-Stormfetch is still in beta, so distro compatibility is limited. If you would like to contribute ASCII art or add other compatibility features feel free to create a pull request or notify me through GitLab Issues.
+At the moment ascii art for different distributions is limited. If you would like to contribute ascii art feel free to make a pull request.
 
 ### How it looks
 ![Stormfetch gif](media/stormfetch.gif)
