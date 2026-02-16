@@ -1,0 +1,27 @@
+Source: stormfetch
+Priority: optional
+Maintainer: EnumDev <enumdev@enumerated.dev>
+Build-Depends:
+ debhelper-compat (= 13),
+ libgl-dev,
+ libx11-dev,
+ libxcursor-dev,
+ libxi-dev,
+ libxinerama-dev,
+ libxrandr-dev,
+ libxxf86vm-dev
+Vcs-Git: https://github.com/EnumeratedDev/stormfetch.git
+Vcs-Browser: https://github.com/EnumeratedDev/stormfetch
+
+Package: stormfetch
+Section: universe/utils
+Architecture: any
+Depends: bash
+Suggests: stormfetch-monitor-detection
+Description: A linux fetch program written in go
+
+Package: stormfetch-monitor-detection
+Section: universe/utils
+Architecture: any
+Depends: stormfetch,libgl1,libx11-6,libxcursor1,libxi6,libxinerama1,libxrandr2,libxxf86vm1
+Description: Monitor detection utility for stormfetch
