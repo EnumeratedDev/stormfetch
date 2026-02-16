@@ -39,7 +39,7 @@ func GetShell() string {
 	case "dash":
 		return "Dash"
 	case "bash":
-		return "Bash " + runCommand("echo $BASH_VERSION", "/bin/sh")
+		return "Bash " + runCommand("$SHELL --version | head -n1 | awk '{print $4}'", "/bin/sh")
 	case "zsh":
 		return "Zsh " + runCommand("$SHELL --version | awk '{print $2}'", "/bin/sh")
 	case "fish":
