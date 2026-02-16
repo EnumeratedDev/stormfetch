@@ -12,9 +12,8 @@ import (
 )
 
 type DEWM struct {
-	Name    string
-	Type    string
-	Version string
+	Name string
+	Type string
 }
 
 func GetShell() string {
@@ -34,20 +33,29 @@ func GetShell() string {
 			shell = userInfo[6]
 		}
 	}
-	shellName := filepath.Base(shell)
-	switch shellName {
-	case "dash":
-		return "Dash"
+	shellName := "Unknown"
+	shellVersion := ""
+	switch filepath.Base(shell) {
 	case "bash":
-		return "Bash " + runCommand("$SHELL --version | head -n1 | awk '{print $4}'", "/bin/sh")
+		shellName = "Bash"
+		shellVersion = runCommand("$SHELL --version | head -n1 | awk '{print $4}'", "/bin/sh")
 	case "zsh":
-		return "Zsh " + runCommand("$SHELL --version | awk '{print $2}'", "/bin/sh")
+		shellName = "Zsh"
+		shellVersion = runCommand("$SHELL --version | awk '{print $2}'", "/bin/sh")
 	case "fish":
-		return "Fish " + runCommand("$SHELL --version | awk '{print $3}'", "/bin/sh")
+		shellName = "Fish"
+		shellVersion = runCommand("$SHELL --version | awk '{print $3}'", "/bin/sh")
 	case "nu":
-		return "Nushell " + runCommand("$SHELL --version", "/bin/sh")
+		shellName = "Nushell"
+		shellVersion = runCommand("$SHELL --version", "/bin/sh")
 	default:
 		return "Unknown"
+	}
+
+	if shellVersion != "" {
+		return shellName + " " + shellVersion
+	} else {
+		return shellName
 	}
 }
 
@@ -66,98 +74,142 @@ func GetDEWM() DEWM {
 	}
 	if processExists("plasmashell") {
 		dewm := DEWM{
-			Name:    "KDE Plasma",
-			Type:    "DE",
-			Version: runCommand("plasmashell --version | awk '{print $2}'", "/bin/sh"),
+			Name: "KDE Plasma",
+			Type: "DE",
 		}
+
+		if version := runCommand("plasmashell --version | awk '{print $2}'", "/bin/sh"); version != "" {
+			dewm.Name += " " + version
+		}
+
 		return dewm
 	} else if processExists("gnome-session") {
 		dewm := DEWM{
-			Name:    "Gnome",
-			Type:    "DE",
-			Version: runCommand("gnome-shell --version | awk '{print $3}'", "/bin/sh"),
+			Name: "Gnome",
+			Type: "DE",
 		}
+
+		if version := runCommand("gnome-shell --version | awk '{print $3}'", "/bin/sh"); version != "" {
+			dewm.Name += " " + version
+		}
+
 		return dewm
 	} else if processExists("xfce4-session") {
 		dewm := DEWM{
-			Name:    "XFCE",
-			Type:    "DE",
-			Version: runCommand("xfce4-session --version | head -n1 | awk '{print $2}'", "/bin/sh"),
+			Name: "XFCE",
+			Type: "DE",
 		}
+
+		if version := runCommand("xfce4-session --version | head -n1 | awk '{print $2}'", "/bin/sh"); version != "" {
+			dewm.Name += " " + version
+		}
+
 		return dewm
 	} else if processExists("cinnamon") {
 		dewm := DEWM{
-			Name:    "Cinnamon",
-			Type:    "DE",
-			Version: runCommand("cinnamon --version | awk '{print $3}'", "/bin/sh"),
+			Name: "Cinnamon",
+			Type: "DE",
 		}
+
+		if version := runCommand("cinnamon --version | awk '{print $3}'", "/bin/sh"); version != "" {
+			dewm.Name += " " + version
+		}
+
 		return dewm
 	} else if processExists("mate-panel") {
 		dewm := DEWM{
-			Name:    "MATE",
-			Type:    "DE",
-			Version: runCommand("mate-about --version | awk '{print $4}'", "/bin/sh"),
+			Name: "MATE",
+			Type: "DE",
 		}
+
+		if version := runCommand("mate-about --version | awk '{print $4}'", "/bin/sh"); version != "" {
+			dewm.Name += " " + version
+		}
+
 		return dewm
 	} else if processExists("lxsession") {
 		dewm := DEWM{
-			Name:    "LXDE",
-			Type:    "DE",
-			Version: "",
+			Name: "LXDE",
+			Type: "DE",
 		}
+
 		return dewm
 	} else if processExists("lxqt-session") {
 		dewm := DEWM{
-			Name:    "LXQt",
-			Type:    "DE",
-			Version: runCommand("lxqt-session --version | head -n1 | awk '{print $2}'", "/bin/sh"),
+			Name: "LXQt",
+			Type: "DE",
 		}
+
+		if version := runCommand("lxqt-session --version | head -n1 | awk '{print $2}'", "/bin/sh"); version != "" {
+			dewm.Name += " " + version
+		}
+
 		return dewm
 	} else if processExists("i3") || processExists("i3-with-shmlog") {
 		dewm := DEWM{
-			Name:    "i3",
-			Type:    "WM",
-			Version: runCommand("i3 --version | awk '{print $3}'", "/bin/sh"),
+			Name: "i3",
+			Type: "WM",
 		}
+
+		if version := runCommand("i3 --version | awk '{print $3}'", "/bin/sh"); version != "" {
+			dewm.Name += " " + version
+		}
+
 		return dewm
 	} else if processExists("sway") {
 		dewm := DEWM{
-			Name:    "Sway",
-			Type:    "WM",
-			Version: runCommand("sway --version | awk '{print $3}'", "/bin/sh"),
+			Name: "Sway",
+			Type: "WM",
 		}
+
 		if runCommand("sway --version | awk '{print $1}'", "/bin/sh") == "swayfx" {
 			dewm.Name = "SwayFX"
 		} else {
 			dewm.Name = "Sway"
 		}
+
+		if version := runCommand("sway --version | awk '{print $3}'", "/bin/sh"); version != "" {
+			dewm.Name += " " + version
+		}
+
 		return dewm
 	} else if processExists("bspwm") {
 		dewm := DEWM{
-			Name:    "Bspwm",
-			Type:    "WM",
-			Version: runCommand("bspwm -v", "/bin/sh"),
+			Name: "Bspwm",
+			Type: "WM",
 		}
+
+		if version := runCommand("bspwm -v", "/bin/sh"); version != "" {
+			dewm.Name += " " + version
+		}
+
 		return dewm
 	} else if processExists("Hyprland") {
 		dewm := DEWM{
-			Name:    "Hyprland",
-			Type:    "WM",
-			Version: runCommand("hyprctl version | sed -n 3p | awk '{print $2}' | tr -d 'v,'", "/bin/sh"),
+			Name: "Hyprland",
+			Type: "WM",
 		}
+
+		if version := runCommand("hyprctl version | sed -n 3p | awk '{print $2}' | tr -d 'v,'", "/bin/sh"); version != "" {
+			dewm.Name += " " + version
+		}
+
 		return dewm
 	} else if processExists("icewm-session") {
 		dewm := DEWM{
-			Name:    "IceWM",
-			Type:    "WM",
-			Version: runCommand("icewm --version | awk '{print $2}'", "/bin/sh"),
+			Name: "IceWM",
+			Type: "WM",
 		}
+
+		if version := runCommand("icewm --version | awk '{print $2}'", "/bin/sh"); version != "" {
+			dewm.Name += " " + version
+		}
+
 		return dewm
 	}
 	return DEWM{
-		Name:    "Unknown",
-		Type:    "Unknown",
-		Version: "Unknown",
+		Name: "Unknown",
+		Type: "Unknown",
 	}
 }
 

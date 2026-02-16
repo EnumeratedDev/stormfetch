@@ -146,21 +146,35 @@ func GetInitSystem() string {
 	// Special cases
 	// OpenRC check
 	if _, err := os.Stat("/usr/sbin/openrc"); err == nil {
-		return "OpenRC " + runCommand("openrc --version | awk '{print $3}'", "/bin/sh")
+		openrcVersion := runCommand("openrc --version | awk '{print $3}'", "/bin/sh")
+		if openrcVersion != "" {
+			return "OpenRC " + openrcVersion
+		} else {
+			return "OpenRC"
+		}
 	}
 
 	// Default PID 1 process name checking
-	switch process.Executable() {
+	initName := process.Executable()
+	initVersion := ""
+	switch initName {
 	case "systemd":
-		return "Systemd " + runCommand("systemctl --version | head -n1 | awk '{print $2}'", "/bin/sh")
+		initName = "Systemd"
+		initVersion = runCommand("systemctl --version | head -n1 | awk '{print $2}'", "/bin/sh")
 	case "runit":
-		return "Runit"
+		initName = "Runit"
 	case "dinit":
-		return "Dinit " + runCommand("dinit --version | head -n1 | awk '{print substr($3, 1, length($3)-1)}'", "/bin/sh")
+		initName = "Dinit"
+		initVersion = runCommand("dinit --version | head -n1 | awk '{print substr($3, 1, length($3)-1)}'", "/bin/sh")
 	case "enit":
-		return "Enit " + runCommand("enit --version | awk '{print $3}'", "/bin/sh")
-	default:
-		return process.Executable()
+		initName = "Enit"
+		initVersion = runCommand("enit --version | awk '{print $3}'", "/bin/sh")
+	}
+
+	if initVersion != "" {
+		return initName + " " + initVersion
+	} else {
+		return initName
 	}
 }
 
