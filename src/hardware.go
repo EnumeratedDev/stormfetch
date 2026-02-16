@@ -92,8 +92,24 @@ func GetGPUModels(hiddenGPUs []int) []GPU {
 			continue
 		}
 
+		// Check if device info is set
+		if gpu.DeviceInfo == nil {
+			ret = append(ret, GPU{
+				PCIAddress: gpu.Address,
+				Vendor:     "Unknown",
+				Name:       "GPU",
+				Product:    "Unknown",
+				Subsystem:  "Unknown",
+				Driver:     "Unknown",
+				VramTotal:  "Unknown",
+				VramUsed:   "Unknown",
+			})
+			continue
+		}
+
 		// Set alternative names for vendors
 		var vendor string
+
 		switch gpu.DeviceInfo.Vendor.ID {
 		case "1002":
 			vendor = "AMD"
