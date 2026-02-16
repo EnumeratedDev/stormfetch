@@ -1,0 +1,7 @@
+# Ignore IDE directories
+/.idea
+
+# Ignore build directories
+/build
+/deb/temp
+/deb/out
