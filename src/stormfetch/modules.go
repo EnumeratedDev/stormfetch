@@ -405,15 +405,15 @@ func initializeModuleMap() {
 	RegisterModule(dewmModule)
 
 	// Monitors module
-	monitorsModule := StormfetchModule{stormfetchModuleConfig: stormfetchModuleConfig{Name: "monitors", Format: "%3Monitor: %4${MONITOR_WIDTH}x${MONITOR_HEIGHT} ${MONITOR_REFRESH_RATE}Hz"}, Execute: func(sm StormfetchModule) string {
+	monitorsModule := StormfetchModule{stormfetchModuleConfig: stormfetchModuleConfig{Name: "monitors", Format: "%3Monitor ${MONITOR_NAME}: %4${MONITOR_WIDTH}x${MONITOR_HEIGHT} ${MONITOR_REFRESH_RATE}Hz"}, Execute: func(sm StormfetchModule) string {
 		builder := strings.Builder{}
 		monitors := GetMonitors()
 
-		for i, monitor := range monitors {
+		for _, monitor := range monitors {
 			expanded := os.Expand(sm.Format, func(s string) string {
 				switch s {
-				case "MONITOR_NUM":
-					return strconv.Itoa(i + 1)
+				case "MONITOR_NAME":
+					return monitor.Name
 				case "MONITOR_WIDTH":
 					return strconv.Itoa(monitor.Width)
 				case "MONITOR_HEIGHT":

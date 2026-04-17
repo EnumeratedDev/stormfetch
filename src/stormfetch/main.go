@@ -12,6 +12,7 @@ import (
 // Build-time variables
 var StormfetchVersion = "dev"
 var SystemConfigDir = "/etc/"
+var LibexecDir = "/libexec/"
 
 // Flag variables
 var ShowVersion = false

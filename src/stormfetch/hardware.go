@@ -3,11 +3,12 @@ package main
 import (
 	"fmt"
 	"os"
+	"os/exec"
+	"path"
 	"slices"
 	"strconv"
 	"strings"
 
-	"github.com/go-gl/glfw/v3.3/glfw"
 	"github.com/jackmordaunt/ghw"
 )
 
@@ -29,6 +30,7 @@ type GPU struct {
 }
 
 type Monitor struct {
+	Name        string
 	Width       int
 	Height      int
 	RefreshRate int
@@ -195,22 +197,55 @@ func GetMotherboardModel() string {
 
 func GetMonitors() []Monitor {
 	var monitors []Monitor
+
 	if GetDisplayProtocol() != "" {
-		err := glfw.Init()
-		if err != nil {
-			panic(err)
+		// Find stormfetch-monitor-detection program
+		execPath, _ := os.Executable()
+		possiblePaths := []string{
+			path.Join(path.Dir(execPath), "stormfetch-monitor-detection"),
+			path.Join(LibexecDir, "stormfetch-monitor-detection"),
 		}
 
-		for _, monitor := range glfw.GetMonitors() {
-			mode := monitor.GetVideoMode()
+		monitorDetectionPath := ""
+		for _, path := range possiblePaths {
+			if _, err := os.Stat(path); err == nil {
+				monitorDetectionPath = path
+				break
+			}
+		}
+		if monitorDetectionPath == "" {
+			return nil
+		}
+
+		// Get monitor detection program output
+		output, err := exec.Command(monitorDetectionPath).Output()
+		if err != nil {
+			return nil
+		}
+
+		// Parse output
+		for line := range strings.SplitSeq(strings.TrimSpace(string(output)), "\n") {
+			lineSplit := strings.Split(line, ",")
+			if len(lineSplit) != 4 {
+				continue
+			}
+
+			name := lineSplit[0]
+			width, err := strconv.Atoi(lineSplit[1])
+			height, err := strconv.Atoi(lineSplit[2])
+			refreshRate, err := strconv.Atoi(lineSplit[3])
+			if err != nil {
+				continue
+			}
 
 			monitors = append(monitors, Monitor{
-				Width:       mode.Width,
-				Height:      mode.Height,
-				RefreshRate: mode.RefreshRate,
+				Name:        name,
+				Width:       width,
+				Height:      height,
+				RefreshRate: refreshRate,
 			})
 		}
-		defer glfw.Terminate()
 	}
+
 	return monitors
 }
