@@ -38,7 +38,7 @@ jobs:
       - name: Upgrade packages
         run: sudo apt update -y && sudo apt upgrade -y
       - name: Download and install dependencies
-        run: sudo apt install -y make debhelper golang libgl-dev libx11-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev libxxf86vm-dev
+        run: sudo apt install -y build-essential make debhelper golang libgl-dev libx11-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev libxxf86vm-dev
       - name: Build deb package
         run: dpkg-buildpackage -b
       - name: Read changelog
