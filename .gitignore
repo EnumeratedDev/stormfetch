@@ -5,3 +5,6 @@
 /build
 /deb/temp
 /deb/out
+
+# Ignore act files
+event.json
