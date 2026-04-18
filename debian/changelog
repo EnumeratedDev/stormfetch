@@ -1,0 +1,13 @@
+stormfetch (7.4-1) trixie; urgency=medium
+
+  * Fix version number
+  * Update debian codename
+  * Fix debhelper dependency
+
+ -- EnumDev <enumdev@enumerated.dev>  Sat, 18 Apr 2026 14:18:37 +0300
+
+stormfetch (7.4.3-1) stretch; urgency=medium
+
+  * Initial packaging work with dpkg-buildpackage.
+
+ -- EnumDev <enumdev@enumerated.dev>  Fri, 17 Apr 2026 16:54:39 +0300

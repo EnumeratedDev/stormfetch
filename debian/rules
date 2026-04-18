@@ -1,0 +1,22 @@
+#!/usr/bin/make -f
+
+clean:
+	-rm -r debian/stormfetch
+	-rm -r debian/stormfetch-monitor-detection
+
+build:
+	# Build program
+	make PREFIX=/usr SYSCONFDIR=/etc
+
+binary:
+	# Create directories
+	mkdir -p debian/stormfetch
+	mkdir -p debian/stormfetch-monitor-detection
+	# Install program
+	make DESTDIR=debian/stormfetch PREFIX=/usr SYSCONFDIR=/etc install-stormfetch
+	make DESTDIR=debian/stormfetch PREFIX=/usr SYSCONFDIR=/etc install-config
+	# Install monitor detection program
+	make DESTDIR=debian/stormfetch-monitor-detection PREFIX=/usr SYSCONFDIR=/etc install-stormfetch-monitor-detection
+	# Finalize packages
+	dh_gencontrol
+	dh_builddeb

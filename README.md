@@ -11,7 +11,11 @@ At the moment ascii art for different distributions is limited. If you would lik
 
 ### Installation Guide
 #### Using a package manager
-- Arch Linux: You may use your favorite AUR manager to install the `stormfetch` package
+|      Distribution      | Package name                               |
+|:----------------------:|:------------------------------------------ |
+| Arch Linux/Artix Linux | `stormfetch` from the AUR                  |
+| Debian/Ubuntu          | latest .deb file from the releases section |
+| Tide Linux             | `stormfetch` from the main repository      |
 #### Building from source
 - Download `go` from your package manager or from the go website
 - Download `make` from your package manager
