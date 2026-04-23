@@ -62,6 +62,11 @@ func GetMountedPartitions(hiddenPartitions, hiddenFilesystems []string) []partit
 			continue
 		}
 
+		// Skip snap mountpoints
+		if strings.HasPrefix(fields[1], "/snap/") {
+			continue
+		}
+
 		// Skip partition if explicitly hidden
 		if slices.Contains(hiddenPartitions, fields[0]) {
 			continue
