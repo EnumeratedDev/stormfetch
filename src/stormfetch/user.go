@@ -206,6 +206,17 @@ func GetDEWM() DEWM {
 		}
 
 		return dewm
+	} else if processExists("oxwm") {
+		dewm := DEWM{
+			Name: "OXWM",
+			Type: "WM",
+		}
+
+		if version := runCommand("oxwm --version 2>&1 | tr -d 'v'", "/bin/sh"); version != "" {
+			dewm.Name += " " + version
+		}
+
+		return dewm
 	}
 	return DEWM{
 		Name: "Unknown",
